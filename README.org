@@ -1,2 +1,7 @@
 * Oḷirvu
 
+** To run the app
+ #+begin_src bash
+ make run
+ #+end_src
+
