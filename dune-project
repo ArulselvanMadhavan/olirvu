@@ -5,22 +5,25 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github ArulselvanMadhavan/olirvu))
 
-(authors "Author Name")
+(authors "Arulselvan Madhavan")
 
-(maintainers "Maintainer Name")
+(maintainers "arulselvan1234@gmail.com")
 
-(license LICENSE)
-
-(documentation https://url/to/documentation)
+(license MIT)
 
 (package
  (name olirvu)
- (synopsis "A short synopsis")
+ (synopsis "Computational Geometry Algorithms")
  (description "A longer description")
- (depends ocaml dune)
+ (depends
+  (ocaml (>= 4.14.1))
+  dune
+  (bonsai (>= 0.15.1))
+  (conduit-lwt (>= 6.0.0))
+  (cohttp-lwt-unix (>= 5.0.0)))
  (tags
-  (topics "to describe" your project)))
+  (topics geometry algorithms visualization ocaml vega)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project

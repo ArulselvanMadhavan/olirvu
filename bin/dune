@@ -1,4 +1,10 @@
 (executable
  (public_name olirvu)
  (name main)
- (libraries olirvu))
+ (libraries olirvu cohttp-lwt-unix conduit-lwt cohttp-async))
+
+(rule
+ (targets embedded_files.ml embedded_files.mli)
+ (deps ../client/main.bc.js)
+ (action
+  (bash "%{bin:ocaml-embed-file} %{deps} -output embedded_files")))
