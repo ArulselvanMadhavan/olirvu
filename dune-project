@@ -21,6 +21,7 @@
   (ocaml (>= 4.14.1))
   dune
   (bonsai (>= 0.15.1))
+  (brr (>= 0.0.4))
   (conduit-lwt (>= 6.0.0))
   (cohttp-lwt-unix (>= 5.0.0)))
  (tags

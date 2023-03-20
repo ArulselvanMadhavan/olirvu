@@ -1,6 +1,6 @@
 (executables
  (names main)
  (modes js)
- (libraries bonsai bonsai.web bonsai.web_ui_form async_kernel async_js)
+ (libraries bonsai bonsai.web bonsai.web_ui_form async_kernel async_js brr)
  (preprocess
   (pps ppx_jane ppx_typed_fields ppx_sexp_message)))

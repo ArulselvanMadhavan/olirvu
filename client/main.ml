@@ -17,8 +17,20 @@ module M = struct
   let default = { spec = None; error = None }
 end
 
+module RBT_Model = struct
+  type t = int list [@@deriving sexp, equal]
+end
+
+module RBT_Action = struct
+  type t = Add [@@deriving sexp]
+end
+
 module V = struct
-  type t = Red_Black_Tree [@@deriving typed_variants, sexp, equal]
+  type t = Red_Black_Tree of RBT_Model.t [@@deriving typed_variants, sexp, equal]
+
+  let to_spec_name = function
+    | Red_Black_Tree _ -> "red_black_tree"
+  ;;
 end
 
 module A = struct
@@ -28,6 +40,15 @@ module A = struct
   [@@deriving sexp_of]
 end
 
+let rbtree_form =
+  let open! Bonsai.Let_syntax in
+  let int_form = Form.Elements.Number.int [%here] ~default:0 ~step:1 () in
+  Form.Elements.Multiple.list [%here] int_form
+;;
+
+(* let f = Value.return (fun xs -> Effect.print_s @@ RBT_Model.sexp_of_t xs) in *)
+(* let%sub () = Form.Dynamic.on_change (module RBT_Model) list_form ~f in *)
+
 let form_of_v =
   Form.Typed.Variant.make
     (module struct
@@ -35,7 +56,7 @@ let form_of_v =
 
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
-        | Red_Black_Tree -> Bonsai.const (Form.return ())
+        | Red_Black_Tree -> rbtree_form
       ;;
     end)
 ;;
@@ -46,11 +67,7 @@ let handle_spec_change s =
       (Js.Unsafe.js_expr "JSON.parse")
       [| Js.Unsafe.inject (Js.string s) |]
   in
-  let _ =
-    Js.Unsafe.fun_call
-      (Js.Unsafe.js_expr "vegaEmbed")
-      [| Js.Unsafe.inject (Js.string "#viz"); json_spec |]
-  in
+  let _ = Vega.vega_embed json_spec in
   ()
 ;;
 
@@ -70,9 +87,15 @@ let fetch_spec inject spec_name =
 ;;
 
 let handle_v_change inject v =
-  let spec_name = Base.String.lowercase (Sexp.to_string (V.sexp_of_t v)) in
-  match v with
-  | V.Red_Black_Tree -> fetch_spec inject spec_name
+  let spec_name = V.to_spec_name v in
+  fetch_spec inject spec_name
+;;
+
+let on_submit =
+  Form.Submit.create
+    ~button:(Some "Visualize")
+    ~f:(fun (V.Red_Black_Tree xs) -> Effect.return @@ Vega.view_insert xs)
+    ()
 ;;
 
 let view_of_form : Vdom.Node.t Computation.t =
@@ -97,7 +120,7 @@ let view_of_form : Vdom.Node.t Computation.t =
   in
   let%arr form_v = form_v in
   (* and state = state in *)
-  Vdom.Node.div [ Form.view_as_vdom form_v ]
+  Vdom.Node.div [ Form.view_as_vdom form_v ~on_submit ]
 ;;
 
 let (_ : _ Start.Handle.t) =
