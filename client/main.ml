@@ -12,7 +12,7 @@ module M = struct
     { spec : string option
     ; error : Error.t option
     }
-  [@@deriving sexp, equal]
+  [@@deriving sexp, equal, fields]
 
   let default = { spec = None; error = None }
 end
@@ -46,9 +46,6 @@ let rbtree_form =
   Form.Elements.Multiple.list [%here] int_form
 ;;
 
-(* let f = Value.return (fun xs -> Effect.print_s @@ RBT_Model.sexp_of_t xs) in *)
-(* let%sub () = Form.Dynamic.on_change (module RBT_Model) list_form ~f in *)
-
 let form_of_v =
   Form.Typed.Variant.make
     (module struct
@@ -62,11 +59,7 @@ let form_of_v =
 ;;
 
 let handle_spec_change s =
-  let json_spec =
-    Js.Unsafe.fun_call
-      (Js.Unsafe.js_expr "JSON.parse")
-      [| Js.Unsafe.inject (Js.string s) |]
-  in
+  let json_spec = Vega.json_parse s in
   let _ = Vega.vega_embed json_spec in
   ()
 ;;
@@ -86,21 +79,36 @@ let fetch_spec inject spec_name =
     inject (A.Spec (Some spec)))
 ;;
 
-let handle_v_change inject v =
-  let spec_name = V.to_spec_name v in
-  fetch_spec inject spec_name
+let handle_v_change viz_visible inject v _ =
+  if viz_visible
+  then Effect.Ignore
+  else (
+    match v with
+    | Ok v ->
+      let spec_name = V.to_spec_name v in
+      fetch_spec inject spec_name
+    | Error e -> inject (A.Error (Some e)))
 ;;
 
-let on_submit =
+let _on_submit =
   Form.Submit.create
     ~button:(Some "Visualize")
-    ~f:(fun (V.Red_Black_Tree xs) -> Effect.return @@ Vega.view_insert xs)
+    ~f:(fun (V.Red_Black_Tree xs) ->
+      (* Effect.print_s (RBT_Model.sexp_of_t xs) *)
+      Effect.return (Vega.view_insert xs))
     ()
+;;
+
+let handle_update_viz inject v _e =
+  match v with
+  | Ok (V.Red_Black_Tree xs) -> Effect.return (Vega.view_insert xs)
+  | Error e -> inject (A.Error (Some e))
 ;;
 
 let view_of_form : Vdom.Node.t Computation.t =
   let open! Bonsai.Let_syntax in
-  let%sub _state, inject =
+  let open Vdom in
+  let%sub state, inject =
     Bonsai.state_machine0
       [%here]
       (module M)
@@ -112,15 +120,26 @@ let view_of_form : Vdom.Node.t Computation.t =
         | Error e -> { model with error = e })
   in
   let%sub form_v = form_of_v in
-  let%sub () =
-    Form.Dynamic.on_change
-      (module V)
-      form_v
-      ~f:(Value.map inject ~f:(fun inject -> handle_v_change inject))
+  let%arr form_v = form_v
+  and inject = inject
+  and state = state in
+  let v = Form.value form_v in
+  let viz_visible = M.spec state |> Option.is_some in
+  let viz_btn_text = if viz_visible then "Hide Viz(Unimpl)" else "Show Viz" in
+  let update_viz =
+    if viz_visible
+    then
+      Node.button
+        ~attr:(Attr.on_click (handle_update_viz inject v))
+        [ Node.Text "Update Viz" ]
+    else Node.None
   in
-  let%arr form_v = form_v in
-  (* and state = state in *)
-  Vdom.Node.div [ Form.view_as_vdom form_v ~on_submit ]
+  let viz_btn =
+    Node.button
+      ~attr:(Attr.on_click (handle_v_change viz_visible inject v))
+      [ Node.Text viz_btn_text ]
+  in
+  Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
 ;;
 
 let (_ : _ Start.Handle.t) =
