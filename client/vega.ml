@@ -46,5 +46,5 @@ let view_insert rbt =
   let ins = call rm "insert" [| values |] in
   let change = call view "change" [| of_string "main"; ins |] in
   let _ = call change "run" [||] in
-  Brr.Console.log [ values ]
+  Brr.Console.(log [str "RBT updated" ])
 ;;

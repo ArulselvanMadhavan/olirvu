@@ -2,7 +2,7 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "description": "An example of Cartesian layouts for a node-link diagram of hierarchical data.",
   "width": 600,
-  "height":600,
+  "height": 600,
   "padding": 5,
   "signals": [
     {"name": "labels", "value": true, "bind": {"input": "checkbox"}},
@@ -24,7 +24,12 @@
   "data": [
     {
       "name": "main",
-      "values": []
+      "values": [
+        {"id": 4, "parent": 3, "name": 98, "color": "red"},
+        {"id": 3, "parent": 1, "name": 32, "color": "black"},
+        {"id": 2, "parent": 1, "name": 6, "color": "black"},
+        {"id": 1, "parent": null, "name": 11, "color": "black"}
+      ]
     },
     {
       "name": "tree",
@@ -53,15 +58,6 @@
       ]
     }
   ],
-  "scales": [
-    {
-      "name": "color",
-      "type": "ordinal",
-      "range": ["black", "red"],
-      "domain": {"data": "tree", "field": "depth"},
-      "zero": true
-    }
-  ],
   "marks": [
     {
       "type": "path",
@@ -78,7 +74,7 @@
         "update": {
           "x": {"field": "x"},
           "y": {"field": "y"},
-          "fill": {"scale": "color", "field": "depth"}
+          "fill": {"field": "color"}
         }
       }
     },

@@ -27,14 +27,19 @@ let balance = function
 let insert x t =
   let rec ins = function
     | E -> T (R, E, x, E)
-    | T (c, l, e, r) ->
+    | T (c, l, e, r) as s ->
       if x < e
       then balance (c, ins l, e, r)
       else if x > e
       then balance (c, l, e, ins r)
-      else t
+      else s
   in
   match ins t with
   | T (_, l, e, r) -> T (B, l, e, r)
   | _ -> t (* Never happens *)
 ;;
+
+let rec count = function
+  | E -> 0
+  | T (_, l, _, r) ->
+    1 + count l + count r

@@ -9,3 +9,5 @@ type 'a t =
   | T of color * 'a t * 'a * 'a t
 
 val insert : 'a -> 'a t -> 'a t
+
+val count : 'a t -> int
