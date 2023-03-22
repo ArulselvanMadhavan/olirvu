@@ -5,3 +5,8 @@
  make run
  #+end_src
 
+** Visualizations
+
+*** Red Black Tree
+[[./images/rbt.png]]
+

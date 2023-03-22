@@ -24,7 +24,7 @@
   "data": [
     {
       "name": "main",
-      "values": []
+      "values": [{"id":"1", "name":"temp", "parent":null, "color":"black"}]
     },
     {
       "name": "tree",
