@@ -90,13 +90,6 @@ let handle_v_change viz_visible inject v _ =
     | Error e -> inject (A.Error (Some e)))
 ;;
 
-(* let _on_submit = *)
-(*   Form.Submit.create *)
-(*     ~button:(Some "Visualize") *)
-(*     ~f:(fun (V.Red_Black_Tree xs) -> *)
-(*       (\* Effect.print_s (RBT_Model.sexp_of_t xs) *\) *)
-(*       Effect.return (Vega.view_insert xs)) *)
-(*     () *)
 let handle_update_viz inject v _e =
   let open Olirvu in
   match v with

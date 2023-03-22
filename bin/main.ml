@@ -22,8 +22,10 @@ form.vega-bindings {
     </head>
     <body>
       <h1>Olirvu visualizations</h1>
-      <div id="app"></div>
-      <div id="viz"></div>
+      <div class="olirvu-container">
+        <div id="app"></div>
+        <div id="viz"></div>
+      </div>
     </body>
 </html>
 |}
