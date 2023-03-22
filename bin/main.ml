@@ -19,7 +19,7 @@ form.vega-bindings {
     flex-direction:column;
 }
 div#viz {
-    .border-style: "solid"
+    border-style: "solid"
 }
 .olirvu-container {
     display: flex;

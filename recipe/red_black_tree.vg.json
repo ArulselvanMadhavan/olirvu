@@ -24,7 +24,12 @@
   "data": [
     {
       "name": "main",
-      "values": [{"id":"1", "name":"temp", "parent":null, "color":"black"}]
+      "values": [
+        {"id": 4, "parent": 3, "name": 11, "color": "red"},
+        {"id": 3, "parent": 1, "name": 32, "color": "black"},
+        {"id": 2, "parent": 1, "name": 6, "color": "black"},
+        {"id": 1, "parent": null, "name": 11, "color": "black"}
+      ]
     },
     {
       "name": "tree",
