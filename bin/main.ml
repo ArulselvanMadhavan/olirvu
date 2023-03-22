@@ -18,6 +18,12 @@ form.vega-bindings {
     top: 0px;
     flex-direction:column;
 }
+div#viz {
+    .border-style: "solid"
+}
+.olirvu-container {
+    display: flex;
+}
 </style>
     </head>
     <body>
