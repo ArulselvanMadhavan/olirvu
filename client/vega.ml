@@ -16,15 +16,28 @@ let vega_embed json_spec =
   Brr.Console.(log [ str "vega_debug attached" ])
 ;;
 
-let view_insert xs =
+let view_insert rbt =
   let open Base in
   let open Jv in
-  let xs = Array.of_list xs in
-  let record idx a =
-    let parent = "parent", if idx > 0 then of_int (idx - 1) else null in
-    obj [| "id", of_int idx; "name", of_int a; parent |]
+  let open Olirvu in
+  let rec build_values acc id ~parent = function
+    | Rbt.E -> acc, id
+    | Rbt.T (c, l, e, r) ->
+      let node_id = id + 1 in
+      let parent = if parent = 0 then null else of_int parent in
+      let record =
+        obj
+          [| "id", of_int node_id
+           ; "parent", parent
+           ; "name", of_int e
+           ; "color", of_string @@ Rbt.to_string c
+          |]
+      in
+      let acc, id = build_values (record :: acc) node_id ~parent:node_id l in
+      build_values acc id ~parent:node_id r
   in
-  let values = Array.mapi xs ~f:record |> of_jv_array in
+  let values, _ = build_values [] 0 ~parent:0 rbt in
+  let values = Array.of_list values |> of_jv_array in
   let v = find global vega_obj_key |> Option.value_exn in
   let view = find v "view" |> Option.value_exn in
   let vega = find global "vega" |> Option.value_exn in
@@ -35,5 +48,3 @@ let view_insert xs =
   let _ = call change "run" [||] in
   Brr.Console.log [ values ]
 ;;
-(* let data = call v "data" [| of_string "tree" |] in *)
-(* Brr.Console.(log [ str "view_insert" ]) *)

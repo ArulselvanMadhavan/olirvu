@@ -56,8 +56,8 @@
   "scales": [
     {
       "name": "color",
-      "type": "linear",
-      "range": {"scheme": "magma"},
+      "type": "ordinal",
+      "range": ["black", "red"],
       "domain": {"data": "tree", "field": "depth"},
       "zero": true
     }
