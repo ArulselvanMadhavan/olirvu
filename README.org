@@ -10,8 +10,11 @@
 *** Red Black Tree
 [[./images/rbt.png]]
 
+*** Leftist Heap
+[[./images/leftist_heap.png]]
+
 ** Known Issues
-1. If the Red Black Tree is not rendered with a default tree, the
+1. If the Tree is not rendered with a default tree, the
    layout hides the label of the root node. So, we always start the
    visualization with some defaults
 

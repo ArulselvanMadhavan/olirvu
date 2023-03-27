@@ -37,6 +37,9 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
   ;;
 
   let of_list xs =
+    List.fold xs ~init:E ~f:(fun acc x -> insert (x, acc))
+      
+  let of_list xs =
     (* Ex 3.3 *)
     let xs = List.map xs ~f:(fun x -> insert (x, E)) in
     let xs = ref xs in
