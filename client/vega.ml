@@ -18,13 +18,14 @@ let vega_embed json_spec =
 
 let rec edges_list_to_record = function
   | [] -> []
-  | (parent, child, elem) :: xs ->
+  | (parent, child, elem, rank) :: xs ->
     let parent = if parent = 0 then Jv.null else Jv.of_int parent in
     let record =
       Jv.obj
         [| "id", Jv.of_int child
          ; "parent", parent
-         ; "name", Jv.of_int elem (* ; "color", Jv.of_string @@ Rbt.to_string c *)
+         ; "name", Jv.of_int elem
+         ; "rank", Jv.of_int rank
         |]
     in
     record :: edges_list_to_record xs
@@ -51,7 +52,8 @@ let build_heap xs =
   let h = H.of_list xs in
   let edges = H.edges_list h in
   let records = edges_list_to_record edges in
-  update_dataset records
+  update_dataset records;
+  Brr.Console.(log [ str "Heap updated" ])
 ;;
 
 let build_rbt rbt =

@@ -37,6 +37,7 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
   ;;
 
   let of_list xs =
+    (* Ex 3.3 *)
     let xs = List.map xs ~f:(fun x -> insert (x, E)) in
     let xs = ref xs in
     let rec merge_adj = function
@@ -49,17 +50,16 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
     done;
     let xs = !xs in
     List.hd_exn xs
-  ;;
 
   let edges_list t =
     let rec helper acc id ~parent = function
       | E -> acc, id
-      | T (_, x, l, r) ->
+      | T (rk, x, l, r) ->
         let node_id = id + 1 in
-        let acc, id = helper ((parent, node_id, x) :: acc) node_id ~parent:node_id l in
+        let acc, id = helper ((parent, node_id, x, rk) :: acc) node_id ~parent:node_id l in
         helper acc id ~parent:node_id r
     in
     let acc, _ = helper [] 0 ~parent:0 t in
-    acc
+    List.rev acc
   ;;
 end

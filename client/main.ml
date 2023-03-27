@@ -71,15 +71,15 @@ let fetch_spec inject spec_name =
     inject (A.Spec (Some spec)))
 ;;
 
-let handle_v_change viz_visible inject v _ =
-  if viz_visible
-  then Effect.Ignore
-  else (
-    match v with
-    | Ok v ->
-      let spec_name = V.to_spec_name v in
-      fetch_spec inject spec_name
-    | Error e -> inject (A.Error (Some e)))
+let on_viz_click inject v _ =
+  (* if viz_visible *)
+  (* then Effect.Ignore *)
+  (* else ( *)
+  match v with
+  | Ok v ->
+    let spec_name = V.to_spec_name v in
+    fetch_spec inject spec_name
+  | Error e -> inject (A.Error (Some e))
 ;;
 
 let handle_update_viz inject v _e =
@@ -112,7 +112,7 @@ let view_of_form : Vdom.Node.t Computation.t =
   and state = state in
   let v = Form.value form_v in
   let viz_visible = M.spec state |> Option.is_some in
-  let viz_btn_text = if viz_visible then "Hide Viz(Unimpl)" else "Show Viz" in
+  let viz_btn_text = if viz_visible then "Refresh Viz" else "Show Viz" in
   let update_viz =
     if viz_visible
     then
@@ -122,9 +122,7 @@ let view_of_form : Vdom.Node.t Computation.t =
     else Node.None
   in
   let viz_btn =
-    Node.button
-      ~attr:(Attr.on_click (handle_v_change viz_visible inject v))
-      [ Node.Text viz_btn_text ]
+    Node.button ~attr:(Attr.on_click (on_viz_click inject v)) [ Node.Text viz_btn_text ]
   in
   Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
 ;;

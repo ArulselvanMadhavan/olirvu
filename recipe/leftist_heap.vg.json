@@ -25,10 +25,10 @@
     {
       "name": "main",
       "values": [
-        {"id": 4, "parent": 3, "name": 11, "color": "red"},
-        {"id": 3, "parent": 1, "name": 32, "color": "black"},
-        {"id": 2, "parent": 1, "name": 6, "color": "black"},
-        {"id": 1, "parent": null, "name": 11, "color": "black"}
+        {"id": 1, "parent": null, "name": 11, "rank": 2},
+        {"id": 2, "parent": 1, "name": 32, "rank": 3},
+        {"id": 3, "parent": 1, "name": 6, "rank": 4},
+        {"id": 4, "parent": 3, "name": 11, "rank": 5}
       ]
     },
     {
@@ -83,7 +83,8 @@
         "update": {
           "x": {"field": "x"},
           "y": {"field": "y"},
-          "fill": {"value": "orange"}
+            "fill": {"value": "orange"},
+            "tooltip": [{"signal": "{\"rank\":datum[\"rank\"]}"}]
         }
       }
     },
