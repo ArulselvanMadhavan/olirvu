@@ -4,6 +4,7 @@ open! Bonsai_web
 open! Async_kernel
 open! Async_js
 open! Js_of_ocaml
+open! Core
 module Form = Bonsai_web_ui_form
 
 module M = struct
@@ -85,12 +86,6 @@ let handle_update_viz inject v _e =
   | Error e -> inject (A.Error (Some e))
 ;;
 
-let alert_effect () = Effect.print_s (Core.Sexp.of_string "submit called")
-(* let alert s = *)
-(*   (\* Js_of_ocaml.Dom_html.window##alert (Js_of_ocaml.Js.string (Sexp.to_string_hum s)) *\) *)
-(* in *)
-(* Effect.of_sync_fun alert *)
-
 let view_of_form : Vdom.Node.t Computation.t =
   let open! Bonsai.Let_syntax in
   let open Vdom in
@@ -125,8 +120,7 @@ let view_of_form : Vdom.Node.t Computation.t =
       ~attr:(Attr.on_click (handle_v_change viz_visible inject v))
       [ Node.Text viz_btn_text ]
   in
-  let on_submit = Form.Submit.create ~f:(fun _t -> alert_effect ()) () in
-  Node.div [ Form.view_as_vdom form_v ~on_submit; update_viz; viz_btn ]
+  Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
 ;;
 
 let (_ : _ Start.Handle.t) =

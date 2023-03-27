@@ -1,2 +1,3 @@
 (library
- (name olirvu))
+ (name olirvu)
+ (libraries base))
