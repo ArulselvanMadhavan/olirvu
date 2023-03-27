@@ -17,16 +17,8 @@ module M = struct
   let default = { spec = None; error = None }
 end
 
-module RBT_Model = struct
-  type t = int list [@@deriving sexp, equal]
-end
-
-module RBT_Action = struct
-  type t = Add [@@deriving sexp]
-end
-
 module V = struct
-  type t = Red_Black_Tree of RBT_Model.t [@@deriving typed_variants, sexp, equal]
+  type t = Red_Black_Tree of Forms.RBT_Model.t [@@deriving typed_variants, sexp, equal]
 
   let to_spec_name = function
     | Red_Black_Tree _ -> "red_black_tree"
@@ -40,12 +32,6 @@ module A = struct
   [@@deriving sexp_of]
 end
 
-let rbtree_form =
-  let open! Bonsai.Let_syntax in
-  let int_form = Form.Elements.Number.int [%here] ~default:0 ~step:1 () in
-  Form.Elements.Multiple.list [%here] int_form
-;;
-
 let form_of_v =
   Form.Typed.Variant.make
     (module struct
@@ -53,7 +39,7 @@ let form_of_v =
 
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
-        | Red_Black_Tree -> rbtree_form
+        | Red_Black_Tree -> Forms.rbtree_form
       ;;
     end)
 ;;
@@ -99,6 +85,12 @@ let handle_update_viz inject v _e =
   | Error e -> inject (A.Error (Some e))
 ;;
 
+let alert_effect () = Effect.print_s (Core.Sexp.of_string "submit called")
+(* let alert s = *)
+(*   (\* Js_of_ocaml.Dom_html.window##alert (Js_of_ocaml.Js.string (Sexp.to_string_hum s)) *\) *)
+(* in *)
+(* Effect.of_sync_fun alert *)
+
 let view_of_form : Vdom.Node.t Computation.t =
   let open! Bonsai.Let_syntax in
   let open Vdom in
@@ -133,7 +125,8 @@ let view_of_form : Vdom.Node.t Computation.t =
       ~attr:(Attr.on_click (handle_v_change viz_visible inject v))
       [ Node.Text viz_btn_text ]
   in
-  Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
+  let on_submit = Form.Submit.create ~f:(fun _t -> alert_effect ()) () in
+  Node.div [ Form.view_as_vdom form_v ~on_submit; update_viz; viz_btn ]
 ;;
 
 let (_ : _ Start.Handle.t) =

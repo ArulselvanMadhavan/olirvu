@@ -41,5 +41,5 @@ let insert x t =
 
 let rec count = function
   | E -> 0
-  | T (_, l, _, r) ->
-    1 + count l + count r
+  | T (_, l, _, r) -> 1 + count l + count r
+;;
