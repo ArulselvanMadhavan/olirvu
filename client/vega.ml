@@ -16,7 +16,45 @@ let vega_embed json_spec =
   Brr.Console.(log [ str "vega_debug attached" ])
 ;;
 
-let view_insert rbt =
+let rec edges_list_to_record = function
+  | [] -> []
+  | (parent, child, elem) :: xs ->
+    let parent = if parent = 0 then Jv.null else Jv.of_int parent in
+    let record =
+      Jv.obj
+        [| "id", Jv.of_int child
+         ; "parent", parent
+         ; "name", Jv.of_int elem (* ; "color", Jv.of_string @@ Rbt.to_string c *)
+        |]
+    in
+    record :: edges_list_to_record xs
+;;
+
+let update_dataset values =
+  let open Jv in
+  let open Base in
+  let values = Array.of_list values |> of_jv_array in
+  let v = find global vega_obj_key |> Option.value_exn in
+  let view = find v "view" |> Option.value_exn in
+  let vega = find global "vega" |> Option.value_exn in
+  let cset = call vega "changeset" [||] in
+  let rm = call cset "remove" [| get vega "truthy" |] in
+  let ins = call rm "insert" [| values |] in
+  let change = call view "change" [| of_string "main"; ins |] in
+  let _ = call change "run" [||] in
+  ()
+;;
+
+let build_heap xs =
+  let open Olirvu in
+  let module H = Heap.Make (Base.Int) in
+  let h = H.of_list xs in
+  let edges = H.edges_list h in
+  let records = edges_list_to_record edges in
+  update_dataset records
+;;
+
+let build_rbt rbt =
   let open Base in
   let open Jv in
   let open Olirvu in
@@ -37,14 +75,6 @@ let view_insert rbt =
       build_values acc id ~parent:node_id r
   in
   let values, _ = build_values [] 0 ~parent:0 rbt in
-  let values = Array.of_list values |> of_jv_array in
-  let v = find global vega_obj_key |> Option.value_exn in
-  let view = find v "view" |> Option.value_exn in
-  let vega = find global "vega" |> Option.value_exn in
-  let cset = call vega "changeset" [||] in
-  let rm = call cset "remove" [| get vega "truthy" |] in
-  let ins = call rm "insert" [| values |] in
-  let change = call view "change" [| of_string "main"; ins |] in
-  let _ = call change "run" [||] in
+  update_dataset values;
   Brr.Console.(log [ str "RBT updated" ])
 ;;

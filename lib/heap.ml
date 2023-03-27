@@ -35,4 +35,31 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
     | E -> E
     | T (_, _, a, b) -> merge (a, b)
   ;;
+
+  let of_list xs =
+    let xs = List.map xs ~f:(fun x -> insert (x, E)) in
+    let xs = ref xs in
+    let rec merge_adj = function
+      | [] -> []
+      | x :: [] -> [ x ]
+      | x1 :: x2 :: xs -> merge (x1, x2) :: merge_adj xs
+    in
+    while List.length !xs > 1 do
+      xs := merge_adj !xs
+    done;
+    let xs = !xs in
+    List.hd_exn xs
+  ;;
+
+  let edges_list t =
+    let rec helper acc id ~parent = function
+      | E -> acc, id
+      | T (_, x, l, r) ->
+        let node_id = id + 1 in
+        let acc, id = helper ((parent, node_id, x) :: acc) node_id ~parent:node_id l in
+        helper acc id ~parent:node_id r
+    in
+    let acc, _ = helper [] 0 ~parent:0 t in
+    acc
+  ;;
 end
