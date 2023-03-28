@@ -20,12 +20,14 @@ let rec edges_list_to_record = function
   | [] -> []
   | (parent, child, elem, rank) :: xs ->
     let parent = if parent = 0 then Jv.null else Jv.of_int parent in
+    let color = if Option.is_some elem then "orange" else "grey" in
     let record =
       Jv.obj
         [| "id", Jv.of_int child
          ; "parent", parent
-         ; "name", Jv.of_int elem
+         ; "name", Option.fold ~some:(Jv.of_int) ~none:(Jv.of_string "E") elem
          ; "rank", Jv.of_int rank
+         ; "color", Jv.of_string color
         |]
     in
     record :: edges_list_to_record xs

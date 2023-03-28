@@ -56,10 +56,12 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
 
   let edges_list t =
     let rec helper acc id ~parent = function
-      | E -> acc, id
+      | E ->
+        let node_id = id + 1 in
+        ((parent, node_id, None, 0) :: acc), node_id
       | T (rk, x, l, r) ->
         let node_id = id + 1 in
-        let acc, id = helper ((parent, node_id, x, rk) :: acc) node_id ~parent:node_id l in
+        let acc, id = helper ((parent, node_id, Some x, rk) :: acc) node_id ~parent:node_id l in
         helper acc id ~parent:node_id r
     in
     let acc, _ = helper [] 0 ~parent:0 t in

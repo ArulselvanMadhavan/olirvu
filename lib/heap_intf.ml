@@ -9,7 +9,7 @@ module type S = sig
   val find_min : t -> Elem.t Option.t
   val delete_min : t -> t
   val of_list : Elem.t list -> t
-  val edges_list : t -> (int * int * Elem.t * int) list
+  val edges_list : t -> (int * int * Elem.t Option.t * int) list
 end
 
 module type Heap = sig

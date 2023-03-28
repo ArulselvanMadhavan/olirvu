@@ -83,7 +83,7 @@
         "update": {
           "x": {"field": "x"},
           "y": {"field": "y"},
-            "fill": {"value": "orange"},
+            "fill": {"field": "color"},
             "tooltip": [{"signal": "{\"rank\":datum[\"rank\"]}"}]
         }
       }
