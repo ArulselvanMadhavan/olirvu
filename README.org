@@ -13,8 +13,15 @@
 *** Leftist Heap
 [[./images/leftist_heap.png]]
 
+*** Binomial Heap
+[[./images/bin_heap.png]]
+
 ** Known Issues
 1. If the Tree is not rendered with a default tree, the
    layout hides the label of the root node. So, we always start the
    visualization with some defaults
+2. Binomial heap viz - The children of heap are not displayed in
+   increasing order of rank.
+3. Binomial heap viz - Multiple roots problem was avoided by
+   introducing a root node called "heap"
 
