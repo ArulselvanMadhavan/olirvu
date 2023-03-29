@@ -1,8 +1,8 @@
 open Base
-include Heap_intf
+include Leftist_heap_intf
 
 module Make (C : Comparable.S) : S with module Elem := C = struct
-  type t =
+  type t =                      (* Leftist heap *)
     | E
     | T of int * C.t * t * t
 
@@ -36,11 +36,8 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
     | T (_, _, a, b) -> merge (a, b)
   ;;
 
-  (* let of_list xs = *)
-  (*   List.fold xs ~init:E ~f:(fun acc x -> insert (x, acc)) *)
-
   let of_list xs =
-    (* Ex 3.3 *)
+    (* Ex 3.3 ; Run time: O(n) *)
     let xs = List.map xs ~f:(fun x -> insert (x, E)) in
     let xs = ref xs in
     let rec merge_adj = function

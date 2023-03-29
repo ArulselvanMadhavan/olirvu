@@ -20,7 +20,7 @@ let rec edges_list_to_record = function
   | [] -> []
   | (parent, child, elem, rank) :: xs ->
     let parent = if parent = 0 then Jv.null else Jv.of_int parent in
-    let color = if Option.is_some elem then "orange" else "grey" in
+    let color = if Option.is_some elem then "orange" else "silver" in
     let record =
       Jv.obj
         [| "id", Jv.of_int child
@@ -50,7 +50,7 @@ let update_dataset values =
 
 let build_heap xs =
   let open Olirvu in
-  let module H = Heap.Make (Base.Int) in
+  let module H = Leftist_heap.Make (Base.Int) in
   let h = H.of_list xs in
   let edges = H.edges_list h in
   let records = edges_list_to_record edges in
