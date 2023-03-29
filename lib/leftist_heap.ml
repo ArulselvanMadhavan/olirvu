@@ -2,7 +2,8 @@ open Base
 include Leftist_heap_intf
 
 module Make (C : Comparable.S) : S with module Elem := C = struct
-  type t =                      (* Leftist heap *)
+  type t =
+    (* Leftist heap *)
     | E
     | T of int * C.t * t * t
 
@@ -50,15 +51,18 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
     done;
     let xs = !xs in
     List.hd_exn xs
+  ;;
 
   let edges_list t =
     let rec helper acc id ~parent = function
       | E ->
         let node_id = id + 1 in
-        ((parent, node_id, None, 0) :: acc), node_id
+        (parent, node_id, None, 0) :: acc, node_id
       | T (rk, x, l, r) ->
         let node_id = id + 1 in
-        let acc, id = helper ((parent, node_id, Some x, rk) :: acc) node_id ~parent:node_id l in
+        let acc, id =
+          helper ((parent, node_id, Some x, rk) :: acc) node_id ~parent:node_id l
+        in
         helper acc id ~parent:node_id r
     in
     let acc, _ = helper [] 0 ~parent:0 t in

@@ -25,7 +25,7 @@ let rec edges_list_to_record = function
       Jv.obj
         [| "id", Jv.of_int child
          ; "parent", parent
-         ; "name", Option.fold ~some:(Jv.of_int) ~none:(Jv.of_string "E") elem
+         ; "name", Option.fold ~some:Jv.of_int ~none:(Jv.of_string "E") elem
          ; "rank", Jv.of_int rank
          ; "color", Jv.of_string color
         |]
