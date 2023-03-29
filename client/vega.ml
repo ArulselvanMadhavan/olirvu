@@ -16,21 +16,23 @@ let vega_embed json_spec =
   Brr.Console.(log [ str "vega_debug attached" ])
 ;;
 
-let rec edges_list_to_record = function
-  | [] -> []
-  | (parent, child, elem, rank) :: xs ->
-    let parent = if parent = 0 then Jv.null else Jv.of_int parent in
-    let color = if Option.is_some elem then "orange" else "silver" in
-    let record =
-      Jv.obj
+let build_record child parent elem rank color =
+        Jv.obj
         [| "id", Jv.of_int child
          ; "parent", parent
-         ; "name", Option.fold ~some:Jv.of_int ~none:(Jv.of_string "E") elem
+         ; "name", elem
          ; "rank", Jv.of_int rank
          ; "color", Jv.of_string color
         |]
+let rec edges_list_to_record ~parent_is_null = function
+  | [] -> []
+  | (parent, child, elem, rank) :: xs ->
+    let parent = if parent = 0 && parent_is_null then Jv.null else Jv.of_int parent in
+    let color = if Option.is_some elem then "orange" else "silver" in
+    let elem = Option.fold ~some:Jv.of_int ~none:(Jv.of_string "E") elem in
+    let record = build_record child parent elem rank color
     in
-    record :: edges_list_to_record xs
+    record :: edges_list_to_record xs ~parent_is_null
 ;;
 
 let update_dataset values =
@@ -53,11 +55,21 @@ let build_heap xs =
   let module H = Leftist_heap.Make (Base.Int) in
   let h = H.of_list xs in
   let edges = H.edges_list h in
-  let records = edges_list_to_record edges in
+  let records = edges_list_to_record edges ~parent_is_null:true in
   update_dataset records;
   Brr.Console.(log [ str "Heap updated" ])
 ;;
 
+let build_bin_heap xs =
+  let open Olirvu in
+  let module H = Binomial_heap.Make (Base.Int) in
+  let h = H.of_list xs in
+  let edges = H.edges_list h in
+  let records = edges_list_to_record edges ~parent_is_null:false in
+  let parent_record = build_record 0 Jv.null (Jv.of_string "heap") (-1) "silver" in
+  update_dataset (parent_record :: records);
+  Brr.Console.(log [str "Bin heap updated"; records])
+    
 let build_rbt rbt =
   let open Base in
   let open Jv in

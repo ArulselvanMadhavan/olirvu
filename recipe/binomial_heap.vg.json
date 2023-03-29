@@ -1,0 +1,109 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "description": "An example of Cartesian layouts for a node-link diagram of hierarchical data.",
+  "width": 800,
+  "height": 800,
+  "padding": 5,
+  "signals": [
+    {"name": "labels", "value": true, "bind": {"input": "checkbox"}},
+    {
+      "name": "layout",
+      "value": "tidy",
+      "bind": {"input": "radio", "options": ["tidy", "cluster"]}
+    },
+    {
+      "name": "links",
+      "value": "diagonal",
+      "bind": {
+        "input": "select",
+        "options": ["line", "curve", "diagonal", "orthogonal"]
+      }
+    },
+    {"name": "separation", "value": false, "bind": {"input": "checkbox"}}
+  ],
+  "data": [
+    {
+      "name": "main",
+      "values": [
+        {"id": 1, "parent": null, "name": 11, "rank": 2},
+        {"id": 2, "parent": 1, "name": 32, "rank": 3},
+        {"id": 3, "parent": 1, "name": 6, "rank": 4},
+        {"id": 4, "parent": 3, "name": 11, "rank": 5}
+      ]
+    },
+    {
+      "name": "tree",
+      "source": "main",
+      "transform": [
+        {"type": "stratify", "key": "id", "parentKey": "parent"},
+        {
+          "type": "tree",
+          "method": {"signal": "layout"},
+          "size": [{"signal": "height"}, {"signal": "width - 100"}],
+          "separation": {"signal": "separation"},
+          "as": ["x", "y", "depth", "children"]
+        }
+      ]
+    },
+    {
+      "name": "links",
+      "source": "tree",
+      "transform": [
+        {"type": "treelinks"},
+        {
+          "type": "linkpath",
+          "orient": "horizontal",
+          "shape": {"signal": "links"}
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "color",
+      "type": "linear",
+      "range": {"scheme": "magma"},
+      "domain": {"data": "tree", "field": "depth"},
+      "zero": true
+    }
+  ],
+  "marks": [
+    {
+      "type": "path",
+      "from": {"data": "links"},
+      "encode": {
+        "update": {"path": {"field": "path"}, "stroke": {"value": "#ccc"}}
+      }
+    },
+    {
+      "type": "symbol",
+      "from": {"data": "tree"},
+      "encode": {
+        "enter": {"size": {"value": 250}, "stroke": {"value": "#fff"}},
+        "update": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+            "fill": {"field": "color"},
+            "tooltip": [{"signal": "{\"rank\":datum[\"rank\"]}"}]
+        }
+      }
+    },
+    {
+      "type": "text",
+      "from": {"data": "tree"},
+      "encode": {
+        "enter": {
+          "text": {"field": "name"},
+          "fontSize": {"value": 9},
+          "baseline": {"value": "middle"}
+        },
+        "update": {
+          "x": {"field": "x"},
+          "y": {"field": "y"},
+          "dx": {"signal": "datum.children ? -5 : -5"},
+          "opacity": {"signal": "labels ? 1 : 0"}
+        }
+      }
+    }
+  ]
+}

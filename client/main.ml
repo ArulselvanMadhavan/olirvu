@@ -22,11 +22,13 @@ module V = struct
   type t =
     | Red_Black_Tree of Forms.RBT_Model.t
     | Leftist_Heap of Forms.RBT_Model.t
+    | Binomial_Heap of Forms.RBT_Model.t
   [@@deriving typed_variants, sexp, equal]
 
   let to_spec_name = function
     | Red_Black_Tree _ -> "red_black_tree"
     | Leftist_Heap _ -> "leftist_heap"
+    | Binomial_Heap _ -> "binomial_heap"
   ;;
 end
 
@@ -46,6 +48,7 @@ let form_of_v =
         = function
         | Red_Black_Tree -> Forms.rbtree_form
         | Leftist_Heap -> Forms.rbtree_form
+        | Binomial_Heap -> Forms.rbtree_form
       ;;
     end)
 ;;
@@ -89,6 +92,7 @@ let handle_update_viz inject v _e =
     let tree = List.fold xs ~init:Rbt.E ~f:(Fn.flip Rbt.insert) in
     Effect.return (Vega.build_rbt tree)
   | Ok (V.Leftist_Heap xs) -> Effect.return (Vega.build_heap xs)
+  | Ok (V.Binomial_Heap xs) -> Effect.return (Vega.build_bin_heap xs)
   | Error e -> inject (A.Error (Some e))
 ;;
 
