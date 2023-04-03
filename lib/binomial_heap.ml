@@ -82,7 +82,7 @@ module Make (C : Comparable.S) : S with module Elem := C = struct
         let acc, id = helper acc node_id ~parent:node_id xs in
         helper acc id ~parent ts
     in
-    let acc, _ = helper [] 0 ~parent:(0) h in
+    let acc, _ = helper [] 0 ~parent:0 h in
     (* Get the layout working. Heap children in order of increasing rank *)
     acc
   ;;
