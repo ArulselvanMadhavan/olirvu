@@ -1,5 +1,5 @@
 include Heap_intf
 
-module type Heap = sig
-  module Make (T : Base.Comparable.S) : S with module Elem := T
+module type Builder = sig
+  module Make (T : Base.Comparable.S) : Heap with module Elem := T
 end

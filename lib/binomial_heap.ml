@@ -1,7 +1,7 @@
 include Binomial_heap_intf
 open Base
 
-module Make (C : Comparable.S) : S with module Elem := C = struct
+module Make (C : Comparable.S) : Heap with module Elem := C = struct
   (* In a tree, children are in order of decreasing rank *)
   type tree = Node of int * C.t * tree list
 

@@ -1,7 +1,7 @@
 open Base
 include Leftist_heap_intf
 
-module Make (C : Comparable.S) : S with module Elem := C = struct
+module Make (C : Comparable.S) : Heap with module Elem := C = struct
   type t =
     (* Leftist heap *)
     | E

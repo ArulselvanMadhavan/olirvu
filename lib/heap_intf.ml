@@ -1,4 +1,4 @@
-module type S = sig
+module type Heap = sig
   module Elem : Base.Comparable.S
 
   type t
@@ -12,7 +12,7 @@ module type S = sig
   val edges_list : t -> (int * int * Elem.t Option.t * int) list
 end
 
-module ExplicitMin (H : S) : S = struct
+module ExplicitMin (H : Heap) : Heap = struct
   module Elem = H.Elem
 
   type t =
