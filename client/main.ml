@@ -19,17 +19,7 @@ module M = struct
 end
 
 module V = struct
-  type t =
-    | Red_Black_Tree of Forms.RBT_Model.t
-    | Leftist_Heap of Forms.RBT_Model.t
-    | Binomial_Heap of Forms.RBT_Model.t
-  [@@deriving typed_variants, sexp, equal]
-
-  let to_spec_name = function
-    | Red_Black_Tree _ -> "red_black_tree"
-    | Leftist_Heap _ -> "leftist_heap"
-    | Binomial_Heap _ -> "binomial_heap"
-  ;;
+  type t = Heaps of Heap_view.t [@@deriving typed_variants]
 end
 
 module A = struct
@@ -46,9 +36,7 @@ let form_of_v =
 
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
-        | Red_Black_Tree -> Forms.rbtree_form
-        | Leftist_Heap -> Forms.rbtree_form
-        | Binomial_Heap -> Forms.rbtree_form
+        | Heaps -> Heap_view.form_of_v
       ;;
     end)
 ;;
@@ -75,24 +63,16 @@ let fetch_spec inject spec_name =
 ;;
 
 let on_viz_click inject v _ =
-  (* if viz_visible *)
-  (* then Effect.Ignore *)
-  (* else ( *)
   match v with
-  | Ok v ->
-    let spec_name = V.to_spec_name v in
+  | Ok (V.Heaps h) ->
+    let spec_name = Heap_view.to_spec_name h in
     fetch_spec inject spec_name
   | Error e -> inject (A.Error (Some e))
 ;;
 
 let handle_update_viz inject v _e =
-  let open Olirvu in
   match v with
-  | Ok (V.Red_Black_Tree xs) ->
-    let tree = List.fold xs ~init:Rbt.E ~f:(Fn.flip Rbt.insert) in
-    Effect.return (Vega.build_rbt tree)
-  | Ok (V.Leftist_Heap xs) -> Effect.return (Vega.build_heap xs)
-  | Ok (V.Binomial_Heap xs) -> Effect.return (Vega.build_bin_heap xs)
+  | Ok (V.Heaps h) -> Heap_view.handle_update h
   | Error e -> inject (A.Error (Some e))
 ;;
 
@@ -130,6 +110,8 @@ let view_of_form : Vdom.Node.t Computation.t =
   in
   Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
 ;;
+
+(* Node.div [ Form.view_as_vdom form_v ] *)
 
 let (_ : _ Start.Handle.t) =
   Start.start Start.Result_spec.just_the_view ~bind_to_element_with_id:"app" view_of_form
