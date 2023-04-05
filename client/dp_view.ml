@@ -14,7 +14,7 @@ let to_spec_name = function
 
 let coin_change_form =
   let open! Bonsai.Let_syntax in
-  let amount = Form.Elements.Number.int ~min:1 [%here] ~default:1 ~step:1 () in
+  let amount = Form.Elements.Number.int ~min:0 [%here] ~default:1 ~max:100 ~step:1 () in
   let coin = Form.Elements.Number.int [%here] ~min:1 ~default:1 ~step:1 () in
   let coins = Form.Elements.Multiple.list [%here] coin in
   let%sub amount = amount in

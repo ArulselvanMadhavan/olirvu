@@ -101,9 +101,13 @@ let build_coin_change xs =
   let open Base in
   let open Jv in
   let values =
-    List.map xs ~f:(fun (amount, num_coins) ->
-      obj [| "amount", of_int amount; "num_coins", of_int num_coins |])
+    Array.mapi xs ~f:(fun amount num_coins ->
+      obj
+        [| "amount", of_int amount
+         ; "num_coins", of_int (Option.value num_coins ~default:(-1))
+        |])
   in
+  let values = Array.to_list values in
   update_dataset values;
   Brr.Console.(log [ str "Coin change updated" ])
 ;;

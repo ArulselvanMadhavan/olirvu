@@ -7,14 +7,19 @@
 
 ** Visualizations
 
-*** Red Black Tree
-[[./images/rbt.png]]
+*** Heaps
+**** Red Black Tree
+ [[./images/rbt.png]]
 
-*** Leftist Heap
-[[./images/leftist_heap.png]]
+**** Leftist Heap
+ [[./images/leftist_heap.png]]
 
-*** Binomial Heap
-[[./images/bin_heap.png]]
+**** Binomial Heap
+ [[./images/bin_heap.png]]
+
+*** Dynamic Programming
+**** Coin change
+[[./images/coin_change.png]]
 
 ** Known Issues
 1. If the Tree is not rendered with a default tree, the

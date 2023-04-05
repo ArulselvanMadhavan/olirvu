@@ -1,1 +1,1 @@
-val coin_change : int -> int list -> (int * int) list
+val coin_change : int -> int list -> int option array
