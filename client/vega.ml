@@ -96,3 +96,14 @@ let build_rbt rbt =
   update_dataset values;
   Brr.Console.(log [ str "RBT updated" ])
 ;;
+
+let build_coin_change xs =
+  let open Base in
+  let open Jv in
+  let values =
+    List.map xs ~f:(fun (amount, num_coins) ->
+      obj [| "amount", of_int amount; "num_coins", of_int num_coins |])
+  in
+  update_dataset values;
+  Brr.Console.(log [ str "Coin change updated" ])
+;;

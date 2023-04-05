@@ -38,4 +38,11 @@ let form_of_v =
     end)
 ;;
 
-let handle_update _v = Effect.Ignore
+let handle_update v =
+  let open Olirvu in
+  match v with
+  | Coin_change (amount, coins) ->
+    let data = Coin_change.coin_change amount coins in
+    Effect.return (Vega.build_coin_change data)
+;;
+(* Effect.print_s (Int.sexp_of_t amount) *)

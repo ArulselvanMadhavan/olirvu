@@ -119,8 +119,6 @@ let view_of_form : Vdom.Node.t Computation.t =
   Node.div [ Form.view_as_vdom form_v; update_viz; viz_btn ]
 ;;
 
-(* Node.div [ Form.view_as_vdom form_v ] *)
-
 let (_ : _ Start.Handle.t) =
   Start.start Start.Result_spec.just_the_view ~bind_to_element_with_id:"app" view_of_form
 ;;
