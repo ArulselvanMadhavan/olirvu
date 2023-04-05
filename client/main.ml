@@ -19,7 +19,10 @@ module M = struct
 end
 
 module V = struct
-  type t = Heaps of Heap_view.t [@@deriving typed_variants]
+  type t =
+    | Heaps of Heap_view.t
+    | DynamicProgramming of Dp_view.t
+  [@@deriving typed_variants]
 end
 
 module A = struct
@@ -37,6 +40,7 @@ let form_of_v =
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
         | Heaps -> Heap_view.form_of_v
+        | DynamicProgramming -> Dp_view.form_of_v
       ;;
     end)
 ;;
@@ -67,12 +71,16 @@ let on_viz_click inject v _ =
   | Ok (V.Heaps h) ->
     let spec_name = Heap_view.to_spec_name h in
     fetch_spec inject spec_name
+  | Ok (V.DynamicProgramming d) ->
+    let spec_name = Dp_view.to_spec_name d in
+    fetch_spec inject spec_name
   | Error e -> inject (A.Error (Some e))
 ;;
 
 let handle_update_viz inject v _e =
   match v with
   | Ok (V.Heaps h) -> Heap_view.handle_update h
+  | Ok (V.DynamicProgramming d) -> Dp_view.handle_update d
   | Error e -> inject (A.Error (Some e))
 ;;
 
