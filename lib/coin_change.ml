@@ -1,8 +1,6 @@
 open Base
 
-let handle_prev c_coins p_coins =
-  Option.fold c_coins ~init:(p_coins + 1) ~f:(Int.min)
-;;
+let handle_prev c_coins p_coins = Option.fold c_coins ~init:(p_coins + 1) ~f:Int.min
 
 (* Array.make [0,amount] *)
 (* for every amount, consider all coins *)

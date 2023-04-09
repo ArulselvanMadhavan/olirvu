@@ -22,6 +22,7 @@ module V = struct
   type t =
     | Heaps of Heap_view.t
     | DynamicProgramming of Dp_view.t
+    | Quantization of Quant_view.t
   [@@deriving typed_variants]
 end
 
@@ -41,6 +42,7 @@ let form_of_v =
         = function
         | Heaps -> Heap_view.form_of_v
         | DynamicProgramming -> Dp_view.form_of_v
+        | Quantization -> Quant_view.form_of_v
       ;;
     end)
 ;;
@@ -74,6 +76,9 @@ let on_viz_click inject v _ =
   | Ok (V.DynamicProgramming d) ->
     let spec_name = Dp_view.to_spec_name d in
     fetch_spec inject spec_name
+  | Ok (V.Quantization q) ->
+    let spec_name = Quant_view.to_spec_name q in
+    fetch_spec inject spec_name
   | Error e -> inject (A.Error (Some e))
 ;;
 
@@ -81,6 +86,7 @@ let handle_update_viz inject v _e =
   match v with
   | Ok (V.Heaps h) -> Heap_view.handle_update h
   | Ok (V.DynamicProgramming d) -> Dp_view.handle_update d
+  | Ok (V.Quantization q) -> Quant_view.handle_update q
   | Error e -> inject (A.Error (Some e))
 ;;
 
