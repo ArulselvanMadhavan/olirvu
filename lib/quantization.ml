@@ -1,6 +1,6 @@
 include Quant_intf
 
-module FP32_to_FP8 (F : FP8) : Quant = struct
+module FP32_to_FP8 (F : FP8) : Quant with type t := F.t  = struct
   let n_bits = F.n_bits
   let mantissa = F.mantissa
   let exponent = n_bits - 1 - mantissa
