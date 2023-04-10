@@ -17,7 +17,9 @@ let form_of_v =
   Form.both value max_val
 ;;
 
-let handle_update (fp32_val, max_val) =
-  Stdio.printf "%f|%f\n" fp32_val max_val;
+let handle_update (fp32, max_val) =
+  let open Olirvu in
+  let module E5M2 = Quantization.FP32_to_FP8 (Quant_intf.E5M2) in
+  Stdio.printf "%f|%f|%f\n" fp32 max_val (E5M2.quantize ~fp32);
   Effect.Ignore
 ;;

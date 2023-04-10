@@ -1,8 +1,8 @@
 include Quant_intf
 
-module E5M2 : FP8 = struct
-  let n_bits = 8
-  let mantissa = 2
+module FP32_to_FP8 (F : FP8) : Quant = struct
+  let n_bits = F.n_bits
+  let mantissa = F.mantissa
   let exponent = n_bits - 1 - mantissa
   let bias_offset = Base.Int.((2 ** (exponent - 1)) - 1)
 

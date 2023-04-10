@@ -5,12 +5,17 @@ end
 module type FP8 = sig
   val n_bits : int
   val mantissa : int
-  (* val exponent : int *)
-  (* val bias_offset : int *)
+end
 
-  include Quant
+module E5M2 : FP8 = struct
+  let n_bits = 8
+  let mantissa = 2
 end
 
 module type VSQ = sig
   include Quant
+end
+
+module type Builder = sig
+  module FP32_to_FP8 (_ : FP8) : Quant
 end
