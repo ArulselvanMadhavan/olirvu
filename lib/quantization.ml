@@ -1,6 +1,6 @@
 include Quant_intf
 
-module FP32_to_FP8 (F : FP8) : Quant with type t := F.t  = struct
+module FP32_to_FP8 (F : FP8) : Quant with type t := F.t = struct
   let n_bits = F.n_bits
   let mantissa = F.mantissa
   let exponent = n_bits - 1 - mantissa
@@ -59,9 +59,12 @@ module FP32_to_FP8 (F : FP8) : Quant with type t := F.t  = struct
 
   let quantize ~fp32 =
     let open Base.Int32 in
+    let q_helper fp32 = 
     let target = bits_of_float fp32 in
     let target_exp = target_exp target in
     let is_subnormal = target_exp < min_exp in
     if is_subnormal then fp32 else quantize_normal target |> float_of_bits
+    in
+    List.map q_helper fp32 
   ;;
 end

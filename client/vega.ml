@@ -116,7 +116,11 @@ let build_quantized_view xs =
   let open Jv in
   List.iter
     (fun (type_, qvalues) ->
-      let values = List.map (fun value -> obj [| "type_", of_string type_; "value", of_float value |]) qvalues in
+      let values =
+        List.map
+          (fun value -> obj [| "type_", of_string type_; "value", of_float value |])
+          qvalues
+      in
       update_dataset ~name:("data_" ^ type_) values)
     xs
 ;;

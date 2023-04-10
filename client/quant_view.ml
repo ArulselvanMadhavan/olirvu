@@ -25,9 +25,10 @@ let handle_update xs =
   let module E4M3 = Quantization.FP32_to_FP8 (Quant_intf.E4M3) in
   let module E3M4 = Quantization.FP32_to_FP8 (Quant_intf.E3M4) in
   let result =
-    [ "E5M2", List.map ~f:(fun fp32 -> E5M2.quantize ~fp32) xs
-    ; "E4M3", List.map ~f:(fun fp32 -> E4M3.quantize ~fp32) xs
-    ; "E3M4", List.map ~f:(fun fp32 -> E3M4.quantize ~fp32) xs
+    [ "FP32", xs
+    ; "E5M2", E5M2.quantize ~fp32:xs
+    ; "E4M3", E4M3.quantize ~fp32:xs
+    ; "E3M4", E3M4.quantize ~fp32:xs
     ; "VSQ", xs
     ]
   in

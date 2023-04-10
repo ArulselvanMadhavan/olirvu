@@ -3,6 +3,7 @@
   "background": "white",
   "padding": 5,
   "data": [
+    {"name": "data_FP32", "values": [{"value": 0.5, "type_": "FP32"}]},
     {"name": "data_E5M2", "values": [{"value": 0.5, "type_": "E5M2"}]},
     {"name": "data_E4M3", "values": [{"value": 0.5, "type_": "E4M3"}]},
     {"name": "data_E3M4", "values": [{"value": 0.5, "type_": "E3M4"}]},
@@ -15,6 +16,64 @@
   ],
   "layout": {"padding": 20, "columns": 2, "bounds": "full", "align": "all"},
   "marks": [
+        {
+      "type": "group",
+      "name": "child__FP32_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "childWidth"},
+          "height": {"signal": "childHeight"}
+        }
+      },
+      "signals": [{"name": "height", "update": "childHeight"}],
+      "marks": [
+        {
+          "name": "child__FP32_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "from": {"data": "data_FP32"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "fill": {"signal": "point_color"},
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\"))"
+              },
+              "x": {"scale": "child__FP32_x", "field": "value"},
+              "y": {"signal": "childHeight", "mult": 0.5},
+              "tooltip": [{"signal": "{\"value\":datum[\"value\"]}"}]
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "child__FP32_x",
+          "orient": "bottom",
+          "grid": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "child__FP32_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "FP32",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "zindex": 0
+        }
+      ]
+    },
     {
       "type": "group",
       "name": "child__E5M2_group",
@@ -249,6 +308,14 @@
     }
   ],
   "scales": [
+        {
+      "name": "child__FP32_x",
+      "type": "linear",
+      "domain": {"data": "data_FP32", "field": "value"},
+      "range": [0, {"signal": "childWidth"}],
+      "nice": true,
+      "zero": true
+    },
     {
       "name": "child__E5M2_x",
       "type": "linear",
