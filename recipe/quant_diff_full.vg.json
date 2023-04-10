@@ -3,22 +3,10 @@
   "background": "white",
   "padding": 5,
   "data": [
-    {
-      "name": "data_E5M2",
-      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E5M2"}]
-    },
-    {
-      "name": "data_E4M3",
-      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E4M3"}]
-    },
-    {
-      "name": "data_E3M4",
-      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E3M4"}]
-    },
-    {
-      "name": "data_VSQ",
-      "values": [{"value": 5, "count": 10, "origin": "same", "type_": "VSQ"}]
-    }
+    {"name": "data_E5M2", "values": [{"value": 0.5, "type_": "E5M2"}]},
+    {"name": "data_E4M3", "values": [{"value": 0.5, "type_": "E4M3"}]},
+    {"name": "data_E3M4", "values": [{"value": 0.5, "type_": "E3M4"}]},
+    {"name": "data_VSQ", "values": [{"value": 5, "type_": "VSQ"}]}
   ],
   "signals": [
     {"name": "childWidth", "value": 200},
@@ -50,10 +38,11 @@
               "fill": {"signal": "point_color"},
               "ariaRoleDescription": {"value": "point"},
               "description": {
-                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\"))"
               },
               "x": {"scale": "child__E5M2_x", "field": "value"},
-              "y": {"signal": "childHeight", "mult": 0.5}
+              "y": {"signal": "childHeight", "mult": 0.5},
+              "tooltip": [{"signal": "{\"value\":datum[\"value\"]}"}]
             }
           }
         }
@@ -107,10 +96,11 @@
               "fill": {"signal": "point_color"},
               "ariaRoleDescription": {"value": "point"},
               "description": {
-                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\"))"
               },
               "x": {"scale": "child__E4M3_x", "field": "value"},
-              "y": {"signal": "childHeight", "mult": 0.5}
+              "y": {"signal": "childHeight", "mult": 0.5},
+              "tooltip": [{"signal": "{\"value\":datum[\"value\"]}"}]
             }
           }
         }
@@ -164,10 +154,11 @@
               "fill": {"signal": "point_color"},
               "ariaRoleDescription": {"value": "point"},
               "description": {
-                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\"))"
               },
               "x": {"scale": "child__E3M4_x", "field": "value"},
-              "y": {"signal": "childHeight", "mult": 0.5}
+              "y": {"signal": "childHeight", "mult": 0.5},
+              "tooltip": [{"signal": "{\"value\":datum[\"value\"]}"}]
             }
           }
         }
@@ -221,10 +212,11 @@
               "fill": {"signal": "point_color"},
               "ariaRoleDescription": {"value": "point"},
               "description": {
-                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\"))"
               },
               "x": {"scale": "child__VSQ_x", "field": "value"},
-              "y": {"signal": "childHeight", "mult": 0.5}
+              "y": {"signal": "childHeight", "mult": 0.5},
+              "tooltip": [{"signal": "{\"value\":datum[\"value\"]}"}]
             }
           }
         }

@@ -36,7 +36,7 @@ let rec edges_list_to_record ~parent_is_null = function
     record :: edges_list_to_record xs ~parent_is_null
 ;;
 
-let update_dataset values =
+let update_dataset ?(name = "main") values =
   let open Jv in
   let open Base in
   let values = Array.of_list values |> of_jv_array in
@@ -46,7 +46,7 @@ let update_dataset values =
   let cset = call vega "changeset" [||] in
   let rm = call cset "remove" [| get vega "truthy" |] in
   let ins = call rm "insert" [| values |] in
-  let change = call view "change" [| of_string "main"; ins |] in
+  let change = call view "change" [| of_string name; ins |] in
   let _ = call change "run" [||] in
   ()
 ;;
@@ -110,4 +110,13 @@ let build_coin_change xs =
   let values = Array.to_list values in
   update_dataset values;
   Brr.Console.(log [ str "Coin change updated" ])
+;;
+
+let build_quantized_view xs =
+  let open Jv in
+  List.iter
+    (fun (type_, qvalues) ->
+      let values = List.map (fun value -> obj [| "type_", of_string type_; "value", of_float value |]) qvalues in
+      update_dataset ~name:("data_" ^ type_) values)
+    xs
 ;;

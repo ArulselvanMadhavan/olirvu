@@ -4,11 +4,10 @@ module FP32_to_FP8 (F : FP8) : Quant = struct
   let n_bits = F.n_bits
   let mantissa = F.mantissa
   let exponent = n_bits - 1 - mantissa
-  let exp_minus_1 = exponent - 1                                  
+  let exp_minus_1 = exponent - 1
   let bias_offset = Base.Int.((2 ** exp_minus_1) - 1)
-  let mant_rem = (23 - mantissa)
-  
-                 
+  let mant_rem = 23 - mantissa
+
   let target_exp tgt =
     let open Unsigned.UInt32 in
     let open Infix in
@@ -24,12 +23,12 @@ module FP32_to_FP8 (F : FP8) : Quant = struct
 
   let round_bitwise target =
     (* Nearest rounding *)
-    let m_rem = (mant_rem - 1) in
+    let m_rem = mant_rem - 1 in
     let open Unsigned.UInt32 in
     let open Infix in
-    let one = (of_int 1) in
+    let one = of_int 1 in
     let mask = (one lsl mant_rem) - one in
-    let rand_prob = (of_int 1) lsl m_rem in
+    let rand_prob = of_int 1 lsl m_rem in
     let add_r = add target rand_prob in
     logand add_r (lognot mask)
   ;;
@@ -45,7 +44,7 @@ module FP32_to_FP8 (F : FP8) : Quant = struct
     in
     let clip_quant () =
       let q_exp_store = ((q_num lsl 1) lsr 1) lsr 23 |> to_int32 in
-      let max_exp_store = ((of_int 1) lsl exp_minus_1) + (of_int 127) in
+      let max_exp_store = (of_int 1 lsl exp_minus_1) + of_int 127 in
       if q_exp_store > to_int32 max_exp_store then clip_up max_exp_store else q_num
     in
     if equal q_num zero then q_num else clip_quant ()
