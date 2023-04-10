@@ -1,0 +1,293 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "background": "white",
+  "padding": 5,
+  "data": [
+    {
+      "name": "data_E5M2",
+      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E5M2"}]
+    },
+    {
+      "name": "data_E4M3",
+      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E4M3"}]
+    },
+    {
+      "name": "data_E3M4",
+      "values": [{"value": 0.5, "count": 10, "origin": "same", "type_": "E3M4"}]
+    },
+    {
+      "name": "data_VSQ",
+      "values": [{"value": 5, "count": 10, "origin": "same", "type_": "VSQ"}]
+    }
+  ],
+  "signals": [
+    {"name": "childWidth", "value": 200},
+    {"name": "childHeight", "value": 20},
+    {"name": "point_color", "value": "#4c78a8"}
+  ],
+  "layout": {"padding": 20, "columns": 2, "bounds": "full", "align": "all"},
+  "marks": [
+    {
+      "type": "group",
+      "name": "child__E5M2_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "childWidth"},
+          "height": {"signal": "childHeight"}
+        }
+      },
+      "signals": [{"name": "height", "update": "childHeight"}],
+      "marks": [
+        {
+          "name": "child__E5M2_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "from": {"data": "data_E5M2"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "fill": {"signal": "point_color"},
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+              },
+              "x": {"scale": "child__E5M2_x", "field": "value"},
+              "y": {"signal": "childHeight", "mult": 0.5}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "child__E5M2_x",
+          "orient": "bottom",
+          "grid": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "child__E5M2_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "E5M2",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "child__E4M3_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "childWidth"},
+          "height": {"signal": "childHeight"}
+        }
+      },
+      "signals": [{"name": "height", "update": "childHeight"}],
+      "marks": [
+        {
+          "name": "child__E4M3_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "from": {"data": "data_E4M3"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "fill": {"signal": "point_color"},
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+              },
+              "x": {"scale": "child__E4M3_x", "field": "value"},
+              "y": {"signal": "childHeight", "mult": 0.5}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "child__E4M3_x",
+          "orient": "bottom",
+          "grid": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "child__E4M3_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "E4M3",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "child__E3M4_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "childWidth"},
+          "height": {"signal": "childHeight"}
+        }
+      },
+      "signals": [{"name": "height", "update": "childHeight"}],
+      "marks": [
+        {
+          "name": "child__E3M4_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "from": {"data": "data_E3M4"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "fill": {"signal": "point_color"},
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+              },
+              "x": {"scale": "child__E3M4_x", "field": "value"},
+              "y": {"signal": "childHeight", "mult": 0.5}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "child__E3M4_x",
+          "orient": "bottom",
+          "grid": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "child__E3M4_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "E3M4",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "zindex": 0
+        }
+      ]
+    },
+    {
+      "type": "group",
+      "name": "child__VSQ_group",
+      "style": "cell",
+      "encode": {
+        "update": {
+          "width": {"signal": "childWidth"},
+          "height": {"signal": "childHeight"}
+        }
+      },
+      "signals": [{"name": "height", "update": "childHeight"}],
+      "marks": [
+        {
+          "name": "child__VSQ_marks",
+          "type": "symbol",
+          "style": ["point"],
+          "from": {"data": "data_VSQ"},
+          "encode": {
+            "update": {
+              "opacity": {"value": 0.7},
+              "fill": {"signal": "point_color"},
+              "ariaRoleDescription": {"value": "point"},
+              "description": {
+                "signal": "\"datum.type_: \" + (format(datum[\"value\"], \"\")) + \"; origin: \" + (isValid(datum[\"origin\"]) ? datum[\"origin\"] : \"\"+datum[\"origin\"])"
+              },
+              "x": {"scale": "child__VSQ_x", "field": "value"},
+              "y": {"signal": "childHeight", "mult": 0.5}
+            }
+          }
+        }
+      ],
+      "axes": [
+        {
+          "scale": "child__VSQ_x",
+          "orient": "bottom",
+          "grid": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "domain": false,
+          "labels": false,
+          "aria": false,
+          "maxExtent": 0,
+          "minExtent": 0,
+          "ticks": false,
+          "zindex": 0
+        },
+        {
+          "scale": "child__VSQ_x",
+          "orient": "bottom",
+          "grid": false,
+          "title": "VSQ",
+          "labelFlush": true,
+          "labelOverlap": true,
+          "tickCount": {"signal": "ceil(childWidth/40)"},
+          "zindex": 0
+        }
+      ]
+    }
+  ],
+  "scales": [
+    {
+      "name": "child__E5M2_x",
+      "type": "linear",
+      "domain": {"data": "data_E5M2", "field": "value"},
+      "range": [0, {"signal": "childWidth"}],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "child__E4M3_x",
+      "type": "linear",
+      "domain": {"data": "data_E4M3", "field": "value"},
+      "range": [0, {"signal": "childWidth"}],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "child__E3M4_x",
+      "type": "linear",
+      "domain": {"data": "data_E3M4", "field": "value"},
+      "range": [0, {"signal": "childWidth"}],
+      "nice": true,
+      "zero": true
+    },
+    {
+      "name": "child__VSQ_x",
+      "type": "linear",
+      "domain": {"data": "data_VSQ", "field": "value"},
+      "range": [0, {"signal": "childWidth"}],
+      "nice": true,
+      "zero": true
+    }
+  ]
+}

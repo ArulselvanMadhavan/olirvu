@@ -4,7 +4,7 @@ module Form = Bonsai_web_ui_form
 
 type t = float * float [@@deriving sexp, equal]
 
-let to_spec_name _ = "quant_diff_full.vg.json"
+let to_spec_name _ = "quant_diff_full"
 
 let form_of_v =
   let open Bonsai.Let_syntax in
