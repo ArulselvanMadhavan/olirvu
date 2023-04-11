@@ -21,6 +21,9 @@
 **** Coin change
 [[./images/coin_change.png]]
 
+*** Quantization
+[[./images/quant.png]]
+
 ** Known Issues
 1. If the Tree is not rendered with a default tree, the
    layout hides the label of the root node. So, we always start the
