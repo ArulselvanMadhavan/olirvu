@@ -1,32 +1,33 @@
 
 # Table of Contents
 
-1.  [Oḷirvu](#org6950940)
-    1.  [To run the app](#org5d7a7fb)
-    2.  [Visualizations](#org99a5633)
-        1.  [Heaps](#org5a7126b)
-        2.  [Dynamic Programming](#org97a7616)
-    3.  [Known Issues](#org844a558)
+1.  [Oḷirvu](#org5e37f71)
+    1.  [To run the app](#orgdc66ecc)
+    2.  [Visualizations](#orgd14b49b)
+        1.  [Heaps](#org8bdc296)
+        2.  [Dynamic Programming](#org077cba5)
+        3.  [Quantization](#org8fc4ddb)
+    3.  [Known Issues](#org2873036)
 
 
-<a id="org6950940"></a>
+<a id="org5e37f71"></a>
 
 # Oḷirvu
 
 
-<a id="org5d7a7fb"></a>
+<a id="orgdc66ecc"></a>
 
 ## To run the app
 
     make run
 
 
-<a id="org99a5633"></a>
+<a id="orgd14b49b"></a>
 
 ## Visualizations
 
 
-<a id="org5a7126b"></a>
+<a id="org8bdc296"></a>
 
 ### Heaps
 
@@ -43,7 +44,7 @@
     ![img](./images/bin_heap.png)
 
 
-<a id="org97a7616"></a>
+<a id="org077cba5"></a>
 
 ### Dynamic Programming
 
@@ -52,7 +53,14 @@
     ![img](./images/coin_change.png)
 
 
-<a id="org844a558"></a>
+<a id="org8fc4ddb"></a>
+
+### Quantization
+
+![img](./images/quant.png)
+
+
+<a id="org2873036"></a>
 
 ## Known Issues
 
