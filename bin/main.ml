@@ -27,7 +27,7 @@ div#viz {
 </style>
     </head>
     <body>
-      <h1>Olirvu visualizations</h1>
+      <h1>Visualizations Playground</h1>
       <div class="olirvu-container">
         <div id="app"></div>
         <div id="viz"></div>

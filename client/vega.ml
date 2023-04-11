@@ -112,15 +112,20 @@ let build_coin_change xs =
   Brr.Console.(log [ str "Coin change updated" ])
 ;;
 
-let build_quantized_view xs =
+let build_quantized_view fp_xs int_xs vsq_xs =
   let open Jv in
-  List.iter
-    (fun (type_, qvalues) ->
-      let values =
-        List.map
-          (fun value -> obj [| "type_", of_string type_; "value", of_float value |])
-          qvalues
-      in
-      update_dataset ~name:("data_" ^ type_) values)
-    xs
+  let update_data xs val_func =
+    List.iter
+      (fun (type_, qvalues) ->
+        let values =
+          List.map
+            (fun value -> obj [| "type_", of_string type_; "value", val_func value |])
+            qvalues
+        in
+        update_dataset ~name:("data_" ^ type_) values)
+      xs
+  in
+  update_data fp_xs of_float;
+  update_data int_xs of_int;
+  update_data vsq_xs (fun (x, _) -> of_int x)
 ;;
