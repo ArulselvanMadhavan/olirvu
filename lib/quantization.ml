@@ -1,33 +1,39 @@
 include Quant_intf
 
-module FP32_to_VSQ(V : VSQ) : Quant with type t := V.t = struct
+module FP32_to_VSQ (V : VSQ) : Quant with type t := V.t = struct
+  let n_max = Base.Int.((2 ** (V.n_bits - 1)) - 1)
+  let m_max = Base.Int.((2 ** V.m_bits) - 1)
 
-  let n_max = Base.Int.(2 ** (V.n_bits - 1) - 1)
-
-  let m_max = Base.Int.(2 ** (V.m_bits) - 1)
-                
   let quantize ~fp32 =
     let xxs = Base.List.chunks_of fp32 ~length:V.tile_size in
     let chunk_scales = Base.Array.create ~len:(List.length xxs) 0. in
-    let xq = Base.List.mapi xxs ~f:(fun i chunk ->
-        let tile_max = Base.List.max_elt chunk ~compare:(Base.Float.compare) |> Option.get in
-        let tile_scale = (tile_max /. Float.of_int n_max) in
+    let xq =
+      Base.List.mapi xxs ~f:(fun i chunk ->
+        let tile_max =
+          Base.List.max_elt chunk ~compare:Base.Float.compare |> Option.get
+        in
+        let tile_scale = tile_max /. Float.of_int n_max in
         chunk_scales.(i) <- tile_scale;
-        Base.List.map chunk ~f:(fun x -> (x /. tile_scale) |> Base.Float.round_nearest |> Int.of_float)
-      ) in
+        Base.List.map chunk ~f:(fun x ->
+          x /. tile_scale |> Base.Float.round_nearest |> Int.of_float))
+    in
     let quantize_scales scales =
-      let scale_max = Base.List.max_elt scales ~compare:(Base.Float.compare) |> Option.get in
+      let scale_max =
+        Base.List.max_elt scales ~compare:Base.Float.compare |> Option.get
+      in
       let gamma = scale_max /. Float.of_int m_max in
-      gamma, Base.List.map scales ~f:(fun scale ->
-          scale /. gamma |> Base.Float.round_nearest |> Int.of_float
-      )
+      ( gamma
+      , Base.List.map scales ~f:(fun scale ->
+          scale /. gamma |> Base.Float.round_nearest |> Int.of_float) )
     in
     let gamma, q_scales = quantize_scales (Base.Array.to_list chunk_scales) in
     let combined = Base.List.zip_exn q_scales xq in
-    let results = Base.List.map combined ~f:(fun (q_scale, chunk) ->
-        Base.List.map chunk ~f:(fun x -> x, Float.of_int (x * q_scale) *. gamma)
-      ) in
+    let results =
+      Base.List.map combined ~f:(fun (q_scale, chunk) ->
+        Base.List.map chunk ~f:(fun x -> x, Float.of_int (x * q_scale) *. gamma))
+    in
     Base.List.concat results
+  ;;
 end
 
 module FP32_to_INT_Q (I : INT_Q) : Quant with type t := I.t = struct
@@ -115,9 +121,10 @@ module FP32_to_FP_Q (F : FP_Q) : Quant with type t := F.t = struct
       let target = Unsigned.UInt32.of_int32 target_int32 in
       let target_exp = target_exp target in
       let is_subnormal = target_exp < min_exp in
-      let restore_sign x = if is_signed then Float.neg x else x
-      in
-      if is_subnormal then fp32 else quantize_normal target |> float_of_bits |> restore_sign
+      let restore_sign x = if is_signed then Float.neg x else x in
+      if is_subnormal
+      then fp32
+      else quantize_normal target |> float_of_bits |> restore_sign
     in
     List.map q_helper fp32
   ;;

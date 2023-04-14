@@ -1,3 +1,64 @@
+type signal = {
+     signal : string
+}
+type signalv2 = {
+     name : string;
+     update : string;
+}
+type float_value = {
+     value : float
+}
+type string_value = {
+     value : string
+}
+type x = {
+     scale : string;
+     field : string
+}
+type y = {
+     signal : string;
+     mult : float
+}
+type update = {
+     ?width : signal option;
+     ?height : signal option;
+     ?opacity: float_value option;
+     ?fill: signal option;
+     ?aria_role_description <json name="ariaRoleDescription"> : string_value option;
+     ?x: x option;
+     ?y: y option;
+     ?tooltip: signal list option;
+}
+
+type encode = {
+     update : update
+}
+type data_ref = {
+     data : string
+}
+type axis = {
+     scale : string;
+     orient : string;
+     grid : bool;
+     tick_count <json name = "tickCount"> : signal;
+     domain : bool;
+     labels : bool;
+     aria : bool;
+     max_extent <json name = "maxExtent"> : int;
+     min_extent <json name = "minExtent"> : int;
+     ticks : bool;
+     zindex : int;
+     ?label_flush : bool option;
+     ?label_overlap : bool option;
+     ?title : string option
+}
 type marks = {
-     type_ <json tag_field="type"> : string;
+     type_ <json name="type"> : string;
+     name : string;
+     style : string;
+     ?from : data_ref option;
+     encode : encode;
+     ?signals : signalv2 list option;
+     ?marks : marks list option;
+     ?axes: axis list option
 }
