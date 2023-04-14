@@ -16,6 +16,7 @@ depends: [
   "conduit-lwt" {>= "6.0.0"}
   "cohttp-lwt-unix" {>= "5.0.0"}
   "integers_stubs_js" {>= "1.0"}
+  "atdgen" {>= "2.11.0"}
   "odoc" {with-doc}
 ]
 build: [

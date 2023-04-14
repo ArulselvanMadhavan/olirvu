@@ -24,7 +24,8 @@
   (brr (>= 0.0.4))
   (conduit-lwt (>= 6.0.0))
   (cohttp-lwt-unix (>= 5.0.0))
-  (integers_stubs_js (>= 1.0)))
+  (integers_stubs_js (>= 1.0))
+  (atdgen (>= 2.11.0)))
  (tags
   (topics geometry algorithms visualization ocaml vega)))
 
