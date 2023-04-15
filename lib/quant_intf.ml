@@ -33,13 +33,13 @@ module E3M4 : FP_Q = struct
 end
 
 module type INT_Q = sig
-  type t = int
+  type t = int * float
 
   val n_bits : int
 end
 
 module INT8 : INT_Q = struct
-  type t = int
+  type t = int * float
 
   let n_bits = 8
 end

@@ -41,6 +41,11 @@ let form_of_v =
     end)
 ;;
 
+let mse x x_recon =
+  let xs = List.zip_exn x x_recon in
+  let se = List.fold ~init:0. ~f:(fun acc (x, x_recon) -> (acc +. ((x -. x_recon) **. 2.))) xs in
+  (se /. (List.length xs |> Float.of_int))
+    
 let handle_list xs =
   if List.is_empty xs
   then Effect.Ignore
@@ -51,17 +56,25 @@ let handle_list xs =
     let module E3M4 = Quantization.FP32_to_FP_Q (Quant_intf.E3M4) in
     let module INT8 = Quantization.FP32_to_INT_Q (Quant_intf.INT8) in
     let module VSQ = Quantization.FP32_to_VSQ (Quant_intf.VSQ_V16) in
+    let e5 = E5M2.quantize ~fp32:xs in
+    let e4 = E4M3.quantize ~fp32:xs in
+    let e3 = E3M4.quantize ~fp32:xs in
+    let i8, i8_recon = INT8.quantize ~fp32:xs |> Base.List.unzip in
+    let vsq, vsq_recon = VSQ.quantize ~fp32:xs |> Base.List.unzip in
     let fp_result =
       [ "FP32", xs
-      ; "E5M2", E5M2.quantize ~fp32:xs
-      ; "E4M3", E4M3.quantize ~fp32:xs
-      ; "E3M4", E3M4.quantize ~fp32:xs
+      ; "E5M2", e5
+      ; "E4M3", e4
+      ; "E3M4", e3
       ]
     in
-    let int_result = [ "INT8", INT8.quantize ~fp32:xs ] in
-    let int_float_result = [ "VSQ", VSQ.quantize ~fp32:xs ] in
+    let int_result = [ "INT8",  i8; "VSQ",  vsq] in
+    (* Hist *)
     let hist = Owl_base_stats.histogram (`N 16) (Array.of_list xs) in
-    Effect.return (Vega.build_quantized_view hist fp_result int_result int_float_result)
+    (* MSE *)
+    let mses = List.map ~f:(mse xs) [e5; e4; e3; i8_recon; vsq_recon] in
+    Brr.Console.(log [ Jv.of_list Jv.of_float mses ]);
+    Effect.return (Vega.build_quantized_view hist fp_result int_result)
 ;;
 
 let handle_update = function
