@@ -56,29 +56,29 @@ type axis = {
      ?label_overlap <json name = "labelOverlap">: bool option;
      ?title : string option
 }
+type layout = {
+     padding : int;
+     columns : int;
+     ?bounds : string option;
+     ?align : string option
+}
+
+type data_values = {
+     name : string;
+     values : abstract list
+}
 type marks = {
      type_ <json name="type"> : string;
      name : string;
      style : string;
      ?from : data_ref option;
-     encode : encode;
-     ?signals : signalv2 list option;
+     ?encode : encode option;
+     ?signals : abstract list option;
      ?marks : marks list option;
-     ?axes: axis list option
-}
-type data_value = {
-     value : float;
-     type_: string
-}
-type data_values = {
-     name : string;
-     values : data_value list
-}
-type layout = {
-     padding : int;
-     columns : int;
-     bounds : string;
-     align : string
+     ?axes: axis list option;
+     ?layout : layout option;
+     ?data : data_values list option;
+     ?scales : scale list option
 }
 type domain = {
      data : string;
@@ -96,10 +96,9 @@ type scale = {
 type recipe = {
      schema <json name = "$schema"> : string;
      background : string;
-     padding : int;
-     data : data_values list;
-     signals : signalv3 list;
+     ?data : data_values list option;
+     ?signals : abstract list option;
      layout : layout;
      marks : marks list;
-     scales : scale list
+     ?scales : scale list option
 }

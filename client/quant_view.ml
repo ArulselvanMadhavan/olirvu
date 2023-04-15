@@ -18,6 +18,8 @@ let build_vals xs =
   Form.Dynamic.with_default (Value.return xs) values
 ;;
 
+let num_elem = 16
+
 let form_of_v =
   Form.Typed.Variant.make
     (module struct
@@ -26,10 +28,9 @@ let form_of_v =
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
         | Uniform ->
-          let num_elem = 16 in
           let arr = Arr.sequential Bigarray.Float32 ~a:(-0.6) ~step:0.1 [| num_elem |] in
-          let ivals = List.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
-          build_vals ivals
+          let ivals = Array.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
+          build_vals (Array.to_list ivals)
       ;;
     end)
 ;;
