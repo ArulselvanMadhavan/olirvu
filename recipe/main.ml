@@ -11,86 +11,70 @@ let child_marks quant =
   let open Quantization_t in
   let name = "child__" ^ quant ^ "_marks" in
   let style = "point" in
-  let data = Some { data = "data_" ^ quant } in
+  let data = { data = "data_" ^ quant } in
   let encode =
     { update =
-        { width = None
-        ; height = None
-        ; opacity = Some { value = 0.7 }
-        ; fill = Some { signal = "point_color" }
-        ; aria_role_description = Some { value = "point" }
-        ; x = Some { scale = "child__" ^ quant ^ "_x"; field = "value" }
-        ; y = Some { signal = "childHeight"; mult = 0.5 }
-        ; tooltip = Some [ { signal = "{\"value\":datum[\"value\"" } ]
-        }
+        make_update
+          ~opacity:{ value = 0.7 }
+          ~fill:{ signal = "point_color" }
+          ~aria_role_description:{ value = "point" }
+          ~x:{ scale = "child__" ^ quant ^ "_x"; field = "value" }
+          ~y:{ signal = "childHeight"; mult = 0.5 }
+          ~tooltip:[ { signal = "{\"value\":datum[\"value\"]}" } ]
+          ()
     }
   in
-  { type_ = "symbol"
-  ; name
-  ; style
-  ; from = data
-  ; encode
-  ; signals = None
-  ; marks = None
-  ; axes = None
-  }
+  make_marks ~type_:"symbol" ~name ~style ~from:data ~encode ()
 ;;
 
-let supported_quants = [ "FP32"; "E5M2"; "E4M3"; "E3M4"; "VSQ" ]
+let supported_quants = [ "FP32"; "E5M2"; "E4M3"; "E3M4"; "INT8"; "VSQ" ]
 
 let build_mark quant =
   let open Quantization_t in
-  let width = Some { signal = "childWidth" } in
-  let height = Some { signal = "childHeight" } in
-  let encode =
-    { update =
-        { width
-        ; height
-        ; opacity = None
-        ; fill = None
-        ; aria_role_description = None
-        ; x = None
-        ; y = None
-        ; tooltip = None
-        }
-    }
-  in
+  let width = { signal = "childWidth" } in
+  let height = { signal = "childHeight" } in
+  let encode = { update = make_update ~width ~height () } in
   let signals = [ { name = "height"; update = "childHeight" } ] in
   let marks = [ child_marks quant ] in
+  let scale = "child__" ^ quant ^ "_x" in
+  let orient = "bottom" in
+  let tick_count = { signal = "ceil(childWidth/40)" } in
   let x_axis_grid =
-    { scale = "child__" ^ quant ^ "_x"
-    ; orient = "bottom"
-    ; grid = true
-    ; tick_count = { signal = "ceil(childWidth/40)" }
-    ; domain = false
-    ; labels = false
-    ; aria = false
-    ; max_extent = 0
-    ; min_extent = 0
-    ; ticks = false
-    ; zindex = 0
-    ; label_flush = None
-    ; label_overlap = None
-    ; title = None
-    }
+    make_axis
+      ~scale
+      ~orient
+      ~grid:true
+      ~tick_count
+      ~domain:false
+      ~labels:false
+      ~aria:false
+      ~max_extent:0
+      ~min_extent:0
+      ~ticks:false
+      ~zindex:0
+      ()
   in
   let x_axis_labels =
-    { x_axis_grid with
-      grid = false
-    ; label_flush = Some true
-    ; label_overlap = Some true
-    ; title = Some quant
-    }
+    make_axis
+      ~scale
+      ~orient
+      ~grid:false
+      ~title:quant
+      ~label_flush:true
+      ~label_overlap:true
+      ~tick_count
+      ~zindex:0
+      ()
   in
-  { type_ = "group"
-  ; name = "child__" ^ quant ^ "_group"
-  ; style = "cell"
-  ; from = None
-  ; encode
-  ; signals = Some signals
-  ; marks = Some marks
-  ; axes = Some [ x_axis_grid; x_axis_labels ]
-  }
+  make_marks
+    ~type_:"group"
+    ~name:("child__" ^ quant ^ "_group")
+    ~style:"cell"
+    ~encode
+    ~signals
+    ~marks
+    ~axes:[ x_axis_grid; x_axis_labels ]
+    ()
 ;;
 
 let build_scale quant =
@@ -128,6 +112,6 @@ let () =
     }
   in
   Stdio.Out_channel.write_all
-    "quant_diff_full_generated.vg.json"
+    "recipe/quant_diff_full_generated.vg.json"
     ~data:(Yojson.Safe.prettify (Quantization_j.string_of_recipe recipe))
 ;;

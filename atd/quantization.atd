@@ -45,15 +45,15 @@ type axis = {
      orient : string;
      grid : bool;
      tick_count <json name = "tickCount"> : signal;
-     domain : bool;
-     labels : bool;
-     aria : bool;
-     max_extent <json name = "maxExtent"> : int;
-     min_extent <json name = "minExtent"> : int;
-     ticks : bool;
+     ?domain : bool option;
+     ?labels : bool option;
+     ?aria : bool option;
+     ?max_extent <json name = "maxExtent"> : int option;
+     ?min_extent <json name = "minExtent"> : int option;
+     ?ticks : bool option;
      zindex : int;
-     ?label_flush : bool option;
-     ?label_overlap : bool option;
+     ?label_flush <json name = "labelFlush"> : bool option;
+     ?label_overlap <json name = "labelOverlap">: bool option;
      ?title : string option
 }
 type marks = {
