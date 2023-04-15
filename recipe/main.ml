@@ -4,8 +4,8 @@ let v5_schema = "https://vega.github.io/schema/vega/v5.json"
 
 let build_sample_data quant =
   let open Quantization_t in
-  let datum = `Assoc [ "value", `Float 0.5; "type_", `String quant] in
-  let data = [datum] in
+  let datum = `Assoc [ "value", `Float 0.5; "type_", `String quant ] in
+  let data = [ datum ] in
   { name = "data_" ^ quant; values = data }
 ;;
 

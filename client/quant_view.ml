@@ -7,7 +7,10 @@ module Model = struct
   type t = float list [@@deriving sexp, equal]
 end
 
-type t = Uniform of Model.t [@@deriving typed_variants, sexp, equal]
+type t =
+  | Uniform of Model.t
+  | Gaussian of Model.t
+[@@deriving typed_variants, sexp, equal]
 
 let to_spec_name _ = "quant_diff_full"
 
@@ -18,7 +21,8 @@ let build_vals xs =
   Form.Dynamic.with_default (Value.return xs) values
 ;;
 
-let num_elem = 16
+let num_elem = 22
+let nd_to_1d arr = Array.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx))
 
 let form_of_v =
   Form.Typed.Variant.make
@@ -28,9 +32,11 @@ let form_of_v =
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
         | Uniform ->
-          let arr = Arr.sequential Bigarray.Float32 ~a:(-0.6) ~step:0.1 [| num_elem |] in
-          let ivals = Array.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
-          build_vals (Array.to_list ivals)
+          let arr = Arr.sequential Bigarray.Float32 ~a:(-1.0) ~step:0.1 [| num_elem |] in
+          build_vals (Array.to_list (nd_to_1d arr))
+        | Gaussian ->
+          let arr = Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:(-1.0) [| num_elem |] in
+          build_vals (Array.to_list (nd_to_1d arr))
       ;;
     end)
 ;;
@@ -60,4 +66,5 @@ let handle_list xs =
 
 let handle_update = function
   | Uniform xs -> handle_list xs
+  | Gaussian xs -> handle_list xs
 ;;

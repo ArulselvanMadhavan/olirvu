@@ -130,9 +130,12 @@ let build_quantized_view hist fp_xs int_xs vsq_xs =
   update_data vsq_xs (fun (x, _) -> of_int x);
   let open Owl_base_stats in
   let gen_hist_datum idx count =
-    obj [|"bin_start", of_float hist.bins.(idx); "bin_end", of_float hist.bins.(idx + 1); "count", of_int count|]
+    obj
+      [| "bin_start", of_float hist.bins.(idx)
+       ; "bin_end", of_float hist.bins.(idx + 1)
+       ; "count", of_int count
+      |]
   in
   let values = Array.mapi gen_hist_datum hist.counts |> Array.to_list in
-  Brr.Console.(log [values]);
-  update_dataset ~name:("hist_source_0") values
+  update_dataset ~name:"hist_source_0" values
 ;;
