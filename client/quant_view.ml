@@ -1,23 +1,40 @@
 open! Base
 open! Bonsai_web
 module Form = Bonsai_web_ui_form
+module Arr = Owl_base_dense_ndarray.Generic
 
-type t = float list [@@deriving sexp, equal]
+module Model = struct
+  type t = float list [@@deriving sexp, equal]
+end
+
+type t = Uniform of Model.t [@@deriving typed_variants, sexp, equal]
 
 let to_spec_name _ = "quant_diff_full"
 
-let form_of_v =
+let build_vals xs =
   let open Bonsai.Let_syntax in
-  let module Arr = Owl_base_dense_ndarray.Generic in
   let value = Form.Elements.Number.float [%here] ~default:0. ~step:0.1 () in
   let%sub values = Form.Elements.Multiple.list [%here] value in
-  let num_elem = 16 in
-  let arr = Arr.sequential Bigarray.Float32 ~a:(-0.6) ~step:0.1 [| num_elem |] in
-  let ivals = List.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
-  Form.Dynamic.with_default (Value.return ivals) values
+  Form.Dynamic.with_default (Value.return xs) values
 ;;
 
-let handle_update xs =
+let form_of_v =
+  Form.Typed.Variant.make
+    (module struct
+      module Typed_variant = Typed_variant
+
+      let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
+        = function
+        | Uniform ->
+          let num_elem = 16 in
+          let arr = Arr.sequential Bigarray.Float32 ~a:(-0.6) ~step:0.1 [| num_elem |] in
+          let ivals = List.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
+          build_vals ivals
+      ;;
+    end)
+;;
+
+let handle_list xs =
   if List.is_empty xs
   then Effect.Ignore
   else
@@ -37,4 +54,8 @@ let handle_update xs =
     let int_result = [ "INT8", INT8.quantize ~fp32:xs ] in
     let int_float_result = [ "VSQ", VSQ.quantize ~fp32:xs ] in
     Effect.return (Vega.build_quantized_view fp_result int_result int_float_result)
+;;
+
+let handle_update = function
+  | Uniform xs -> handle_list xs
 ;;
