@@ -12,7 +12,7 @@ let form_of_v =
   let value = Form.Elements.Number.float [%here] ~default:0. ~step:0.1 () in
   let%sub values = Form.Elements.Multiple.list [%here] value in
   let num_elem = 16 in
-  let arr = Arr.sequential Bigarray.Float32 ~a:(-0.1) ~step:0.1 [| num_elem |] in
+  let arr = Arr.sequential Bigarray.Float32 ~a:(-0.6) ~step:0.1 [| num_elem |] in
   let ivals = List.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx)) in
   Form.Dynamic.with_default (Value.return ivals) values
 ;;

@@ -66,12 +66,12 @@ module FP32_to_FP_Q (F : FP_Q) : Quant with type t := F.t = struct
   let exp_minus_1 = exponent - 1
   let bias_offset = Base.Int.((2 ** exp_minus_1) - 1)
   let mant_rem = 23 - mantissa
+  let max_exp_store = Int.(one lsl exp_minus_1) + 127 |> Base.Int32.of_int_exn
 
-  let target_exp tgt =
-    let open Unsigned.UInt32 in
-    let open Infix in
+  let target_exp (tgt : Int32.t) =
+    let open Base.Int32 in
     let te = ((tgt lsl 1) lsr 1) lsr 23 in
-    to_int32 (te - of_int bias_offset)
+    te - of_int_exn bias_offset
   ;;
 
   let min_exp =
@@ -80,51 +80,42 @@ module FP32_to_FP_Q (F : FP_Q) : Quant with type t := F.t = struct
   ;;
 
   let round_bitwise target =
-    (* Nearest rounding *)
     let m_rem = mant_rem - 1 in
-    let open Unsigned.UInt32 in
-    let open Infix in
-    let one = of_int 1 in
+    let open Base.Int32 in
     let mask = (one lsl mant_rem) - one in
-    let rand_prob = of_int 1 lsl m_rem in
-    let add_r = add target rand_prob in
-    logand add_r (lognot mask)
+    let rand_prob = one lsl m_rem in
+    let add_r = target + rand_prob in
+    add_r land lnot mask
   ;;
 
   let clip_exponent old_num q_num =
-    let open Unsigned.UInt32 in
-    let open Infix in
+    let m_rem = 23 - mant_rem in
+    let open Base.Int32 in
     let clip_up max_exp =
-      let max_man = (((of_int (-1) lsl 9) lsr 9) lsr mant_rem) lsl mant_rem in
+      (* start with all ones; clip left 9 bits; clip right 23-mantissa bits. Remaining is just ones in mantissa bits. *)
+      let max_man = (((neg one lsl 9) lsr 9) lsr m_rem) lsr m_rem in
       let max_num = (max_exp lsl 23) lor max_man in
       let old_sign = (old_num lsr 31) lsl 31 in
       old_sign lor max_num
     in
     let clip_quant () =
-      let q_exp_store = ((q_num lsl 1) lsr 1) lsr 23 |> to_int in
-      let max_exp_store = Int.(add (shift_left 1 exp_minus_1) 127) in
-      if q_exp_store > max_exp_store then clip_up (of_int max_exp_store) else q_num
+      let q_exp_store = ((q_num lsl 1) lsr 1) lsr 23 in
+      if q_exp_store > max_exp_store then clip_up max_exp_store else q_num
     in
     if equal q_num zero then q_num else clip_quant ()
   ;;
 
-  let quantize_normal target =
-    let quantized_bits = round_bitwise target in
-    clip_exponent target quantized_bits |> Unsigned.UInt32.to_int32
-  ;;
+  let quantize_normal target = round_bitwise target |> clip_exponent target
 
   let quantize ~fp32 =
     let open Base.Int32 in
     let q_helper fp32 =
-      let target_int32 = bits_of_float fp32 in
-      let is_signed = is_negative target_int32 in
-      let target = Unsigned.UInt32.of_int32 target_int32 in
+      let target = bits_of_float fp32 in
       let target_exp = target_exp target in
       let is_subnormal = target_exp < min_exp in
-      let restore_sign x = if is_signed then Float.neg x else x in
       if is_subnormal
-      then fp32
-      else quantize_normal target |> float_of_bits |> restore_sign
+      then fp32 (* To be implemented *)
+      else quantize_normal target |> float_of_bits
     in
     List.map q_helper fp32
   ;;
