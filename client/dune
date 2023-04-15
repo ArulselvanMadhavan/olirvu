@@ -8,6 +8,7 @@
   async_kernel
   async_js
   brr
-  olirvu)
+  olirvu
+  owl-base)
  (preprocess
   (pps ppx_jane ppx_typed_fields ppx_sexp_message ppx_fields_conv)))

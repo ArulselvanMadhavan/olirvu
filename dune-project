@@ -26,7 +26,8 @@
   (cohttp-lwt-unix (>= 5.0.0))
   (integers_stubs_js (>= 1.0))
   (atdgen (>= 2.11.0))
-  (ppx_make (>= 0.3.2)))
+  (ppx_make (>= 0.3.2))
+  (owl-base (>= 1.1.0)))
  (tags
   (topics geometry algorithms visualization ocaml vega)))
 

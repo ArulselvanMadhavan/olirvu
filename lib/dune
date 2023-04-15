@@ -1,3 +1,3 @@
 (library
  (name olirvu)
- (libraries base integers integers_stubs_js))
+ (libraries base integers integers_stubs_js owl-base))
