@@ -11,22 +11,15 @@
     {"name": "data_INT8", "values": [{"value": 0.5, "type_": "INT8"}]},
     {"name": "data_VSQ", "values": [{"value": 0.5, "type_": "VSQ"}]},
     {
-      "name": "source_0",
+      "name": "hist_source_0",
       "values": [
-        {"bin_start": 8, "bin_end": 10, "count": 7},
-        {"bin_start": 10, "bin_end": 12, "count": 29},
-        {"bin_start": 12, "bin_end": 14, "count": 71},
-        {"bin_start": 14, "bin_end": 16, "count": 127},
-        {"bin_start": 16, "bin_end": 18, "count": 94},
-        {"bin_start": 18, "bin_end": 20, "count": 54},
-        {"bin_start": 20, "bin_end": 22, "count": 17},
-        {"bin_start": 22, "bin_end": 24, "count": 5},
-        {"bin_start": 22, "bin_end": 24, "count": 50}
+          {"bin_start": 0.3, "bin_end": 0.4, "count": 7},
+          {"bin_start": 0.2, "bin_end": 0.3, "count": 7}
       ]
     },
     {
-      "name": "data_0",
-      "source": "source_0",
+      "name": "hist_data_0",
+      "source": "hist_source_0",
       "transform": [
         {
           "type": "stack",
@@ -69,7 +62,7 @@
               "name": "hist_marks",
               "type": "rect",
               "style": ["bar"],
-              "from": {"data": "data_0"},
+              "from": {"data": "hist_data_0"},
               "encode": {
                 "update": {
                   "fill": {"value": "#4c78a8"},
@@ -123,15 +116,14 @@
         {
           "name": "x",
           "type": "linear",
-          "domain": {"data": "data_0", "fields": ["bin_start", "bin_end"]},
+          "domain": {"data": "hist_data_0", "fields": ["bin_start", "bin_end"]},
           "range": [0, {"signal": "hist_width"}],
-          "bins": {"step": 2},
           "zero": false
         },
         {
           "name": "y",
           "type": "linear",
-          "domain": {"data": "data_0", "fields": ["count_start", "count_end"]},
+          "domain": {"data": "hist_data_0", "fields": ["count_start", "count_end"]},
           "range": [{"signal": "hist_height"}, 0],
           "nice": true,
           "zero": true

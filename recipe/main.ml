@@ -116,11 +116,6 @@ let scale_group () =
     ()
 ;;
 
-(* let hist_group () = *)
-(*   let open Quantization_t in *)
-(*   let values =  *)
-(*   let data = make_data_values ~name:"source_0" ~values () in *)
-(*   make_marks ~type_:"group" ~name:"hist_group" ~style:"cell"  *)
 let () =
   let open Quantization_t in
   let layout = make_layout ~padding:50 ~columns:1 () in

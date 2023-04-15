@@ -54,7 +54,8 @@ let handle_list xs =
     in
     let int_result = [ "INT8", INT8.quantize ~fp32:xs ] in
     let int_float_result = [ "VSQ", VSQ.quantize ~fp32:xs ] in
-    Effect.return (Vega.build_quantized_view fp_result int_result int_float_result)
+    let hist = Owl_base_stats.histogram (`N 16) (Array.of_list xs) in
+    Effect.return (Vega.build_quantized_view hist fp_result int_result int_float_result)
 ;;
 
 let handle_update = function

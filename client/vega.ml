@@ -112,7 +112,7 @@ let build_coin_change xs =
   Brr.Console.(log [ str "Coin change updated" ])
 ;;
 
-let build_quantized_view fp_xs int_xs vsq_xs =
+let build_quantized_view hist fp_xs int_xs vsq_xs =
   let open Jv in
   let update_data xs val_func =
     List.iter
@@ -127,5 +127,12 @@ let build_quantized_view fp_xs int_xs vsq_xs =
   in
   update_data fp_xs of_float;
   update_data int_xs of_int;
-  update_data vsq_xs (fun (x, _) -> of_int x)
+  update_data vsq_xs (fun (x, _) -> of_int x);
+  let open Owl_base_stats in
+  let gen_hist_datum idx count =
+    obj [|"bin_start", of_float hist.bins.(idx); "bin_end", of_float hist.bins.(idx + 1); "count", of_int count|]
+  in
+  let values = Array.mapi gen_hist_datum hist.counts |> Array.to_list in
+  Brr.Console.(log [values]);
+  update_dataset ~name:("hist_source_0") values
 ;;
