@@ -5,6 +5,10 @@ type signalv2 = {
      name : string;
      update : string;
 }
+type signalv3 = {
+     name: string;
+     value: abstract
+}
 type float_value = {
      value : float
 }
@@ -61,4 +65,41 @@ type marks = {
      ?signals : signalv2 list option;
      ?marks : marks list option;
      ?axes: axis list option
+}
+type data_value = {
+     value : float;
+     type_: string
+}
+type data_values = {
+     name : string;
+     values : data_value list
+}
+type layout = {
+     padding : int;
+     columns : int;
+     bounds : string;
+     align : string
+}
+type domain = {
+     data : string;
+     field : string
+}
+
+type scale = {
+     name : string;
+     type_ <json name="type"> : string;
+     domain : domain;
+     range : abstract list;
+     nice: bool;
+     zero: bool
+}
+type recipe = {
+     schema <json name = "$schema"> : string;
+     background : string;
+     padding : int;
+     data : data_values list;
+     signals : signalv3 list;
+     layout : layout;
+     marks : marks list;
+     scales : scale list
 }

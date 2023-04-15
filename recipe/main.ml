@@ -1,5 +1,12 @@
 open ATDGenerated
 
+let v5_schema = "https://vega.github.io/schema/vega/v5.json"
+
+let build_sample_data quant =
+  let open Quantization_t in
+  { name = "data_" ^ quant; values = [ { value = 0.5; type_ = quant } ] }
+;;
+
 let child_marks quant =
   let open Quantization_t in
   let name = "child__" ^ quant ^ "_marks" in
@@ -29,9 +36,10 @@ let child_marks quant =
   }
 ;;
 
-let () =
+let supported_quants = [ "FP32"; "E5M2"; "E4M3"; "E3M4"; "VSQ" ]
+
+let build_mark quant =
   let open Quantization_t in
-  let quant = "FP32" in
   let width = Some { signal = "childWidth" } in
   let height = Some { signal = "childHeight" } in
   let encode =
@@ -74,17 +82,52 @@ let () =
     ; title = Some quant
     }
   in
-  let mark =
-    { type_ = "group"
-    ; name = "child__" ^ quant ^ "_group"
-    ; style = "cell"
-    ; from = None
-    ; encode
-    ; signals = Some signals
-    ; marks = Some marks
-    ; axes = Some [ x_axis_grid; x_axis_labels ]
+  { type_ = "group"
+  ; name = "child__" ^ quant ^ "_group"
+  ; style = "cell"
+  ; from = None
+  ; encode
+  ; signals = Some signals
+  ; marks = Some marks
+  ; axes = Some [ x_axis_grid; x_axis_labels ]
+  }
+;;
+
+let build_scale quant =
+  let open Quantization_t in
+  { name = "child__" ^ quant ^ "_x"
+  ; type_ = "linear"
+  ; domain = { data = "data_" ^ quant; field = "value" }
+  ; range = [ `Int 0; `Assoc [ "signal", `String "childWidth" ] ]
+  ; nice = true
+  ; zero = true
+  }
+;;
+
+let () =
+  let open Quantization_t in
+  let data = Base.List.map supported_quants ~f:build_sample_data in
+  let marks = Base.List.map supported_quants ~f:build_mark in
+  let signals =
+    [ { name = "childWidth"; value = `Int 200 }
+    ; { name = "childHeight"; value = `Int 20 }
+    ; { name = "point_color"; value = `String "#4778a8" }
+    ]
+  in
+  let layout = { padding = 20; columns = 2; bounds = "full"; align = "all" } in
+  let scales = Base.List.map supported_quants ~f:build_scale in
+  let recipe =
+    { schema = v5_schema
+    ; background = "white"
+    ; padding = 5
+    ; marks
+    ; data
+    ; signals
+    ; layout
+    ; scales
     }
   in
-  let mark_str = Yojson.Safe.prettify (Quantization_j.string_of_marks mark) in
-  Printf.printf "%s\n" mark_str
+  Stdio.Out_channel.write_all
+    "quant_diff_full_generated.vg.json"
+    ~data:(Yojson.Safe.prettify (Quantization_j.string_of_recipe recipe))
 ;;
