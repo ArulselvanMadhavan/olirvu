@@ -60,6 +60,14 @@ module VSQ_V16 : VSQ = struct
   let tile_size = 16
 end
 
+module VSQ_V128_N8_M4 : VSQ = struct
+  type t = int * float
+
+  let n_bits = 8
+  let m_bits = 4
+  let tile_size = 128
+end
+
 module type Builder = sig
   module FP32_to_FP_Q (F : FP_Q) : Quant with type t := F.t
   module FP32_to_INT_Q (I : INT_Q) : Quant with type t := I.t

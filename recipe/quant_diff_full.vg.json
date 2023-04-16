@@ -241,7 +241,7 @@
                   "scale": "mse_y",
                   "orient": "left",
                   "grid": false,
-                  "title": "mse",
+                  "title": "sqnr",
                   "labelOverlap": true,
                   "tickCount": {"signal": "ceil(mse_height/40)"},
                   "zindex": 0

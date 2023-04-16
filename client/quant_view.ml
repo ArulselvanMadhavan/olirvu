@@ -75,7 +75,7 @@ let sqnr x (name, x_recon) =
   name, sqnr
 ;;
 
-let handle_list xs =
+let handle_list (tsize, xs) =
   if List.is_empty xs
   then Effect.Ignore
   else
@@ -84,7 +84,7 @@ let handle_list xs =
     let module E4M3 = Quantization.FP32_to_FP_Q (Quant_intf.E4M3) in
     let module E3M4 = Quantization.FP32_to_FP_Q (Quant_intf.E3M4) in
     let module INT8 = Quantization.FP32_to_INT_Q (Quant_intf.INT8) in
-    let module VSQ = Quantization.FP32_to_VSQ (Quant_intf.VSQ_V16) in
+    let module VSQ = Quantization.FP32_to_VSQ (Quant_intf.VSQ_V128_N8_M4) in
     let e5 = E5M2.quantize ~fp32:xs in
     let e4 = E4M3.quantize ~fp32:xs in
     let e3 = E3M4.quantize ~fp32:xs in
@@ -93,7 +93,8 @@ let handle_list xs =
     let fp_result = [ "FP32", xs; "E5M2", e5; "E4M3", e4; "E3M4", e3 ] in
     let int_result = [ "INT8", i8; "VSQ", vsq ] in
     (* Hist *)
-    let hist = Owl_base_stats.histogram (`N 16) (Array.of_list xs) in
+    let bin_count = Int.min tsize 128 in
+    let hist = Owl_base_stats.histogram (`N bin_count) (Array.of_list xs) in
     (* SQNR *)
     let sqnrs =
       List.map
@@ -105,6 +106,6 @@ let handle_list xs =
 ;;
 
 let handle_update = function
-  | Uniform (_, xs) -> handle_list xs
-  | Gaussian (_, xs) -> handle_list xs
+  | Uniform x -> handle_list x
+  | Gaussian x -> handle_list x
 ;;
