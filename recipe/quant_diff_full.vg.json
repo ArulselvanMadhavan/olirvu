@@ -2,7 +2,7 @@
   "$schema": "https://vega.github.io/schema/vega/v5.json",
   "background": "white",
   "padding": 5,
-  "layout": {"columns": 1, "padding": 50},
+  "layout": {"columns": 1, "padding": 5},
   "data": [
     {"name": "data_FP32", "values": [{"value": 0.5, "type_": "FP32"}]},
     {"name": "data_E5M2", "values": [{"value": 0.5, "type_": "E5M2"}]},
@@ -13,8 +13,8 @@
     {
       "name": "hist_source_0",
       "values": [
-          {"bin_start": 0.3, "bin_end": 0.4, "count": 7},
-          {"bin_start": 0.2, "bin_end": 0.3, "count": 7}
+        {"bin_start": 0.3, "bin_end": 0.4, "count": 7},
+        {"bin_start": 0.2, "bin_end": 0.3, "count": 7}
       ]
     },
     {
@@ -34,99 +34,248 @@
           "expr": "isValid(datum[\"bin_start\"]) && isFinite(+datum[\"bin_start\"]) && isValid(datum[\"count\"]) && isFinite(+datum[\"count\"])"
         }
       ]
+    },
+    {
+      "name": "mse_source_0",
+      "values": [
+        {"mse": 28, "type_": "E5M2"},
+        {"mse": 55, "type_": "E4M3"},
+        {"mse": 43, "type_": "E3M4"}
+      ]
+    },
+    {
+      "name": "mse_data_0",
+      "source": "mse_source_0",
+      "transform": [
+        {
+          "type": "stack",
+          "groupby": ["type_"],
+          "field": "mse",
+          "sort": {"field": [], "order": []},
+          "as": ["mse_start", "mse_end"],
+          "offset": "zero"
+        },
+        {
+          "type": "filter",
+          "expr": "isValid(datum[\"mse\"]) && isFinite(+datum[\"mse\"])"
+        }
+      ]
     }
   ],
   "marks": [
     {
       "type": "group",
-      "name": "hist_group",
+      "name": "row_1",
       "style": "cell",
-      "signals": [
-        {"name": "hist_height", "value": 200},
-        {"name": "hist_width", "value": 200}
-      ],
+      "layout": {"columns": 2, "padding": 10, "align": "all"},
       "marks": [
         {
           "type": "group",
-          "name": "child__FP32_group",
+          "name": "hist_group",
           "style": "cell",
-          "encode": {
-            "update": {
-              "width": {"signal": "hist_width"},
-              "height": {"signal": "hist_height"}
-            }
-          },
-          "signals": [{"name": "height", "update": "hist_height"}],
+          "signals": [
+            {"name": "hist_height", "value": 200},
+            {"name": "hist_width", "value": 200}
+          ],
           "marks": [
             {
-              "name": "hist_marks",
-              "type": "rect",
-              "style": ["bar"],
-              "from": {"data": "hist_data_0"},
+              "type": "group",
+              "name": "child__FP32_group",
+              "style": "cell",
               "encode": {
                 "update": {
-                  "fill": {"value": "#4c78a8"},
-                  "ariaRoleDescription": {"value": "bar"},
-                  "x2": {"scale": "x", "field": "bin_start", "offset": 1},
-                  "x": {"scale": "x", "field": "bin_end"},
-                  "y": {"scale": "y", "field": "count_end"},
-                  "y2": {"scale": "y", "field": "count_start"}
+                  "width": {"signal": "hist_width"},
+                  "height": {"signal": "hist_height"}
                 }
-              }
+              },
+              "signals": [{"name": "height", "update": "hist_height"}],
+              "marks": [
+                {
+                  "name": "hist_marks",
+                  "type": "rect",
+                  "style": ["bar"],
+                  "from": {"data": "hist_data_0"},
+                  "encode": {
+                    "update": {
+                      "fill": {"value": "#4c78a8"},
+                      "ariaRoleDescription": {"value": "bar"},
+                      "x2": {"scale": "x", "field": "bin_start", "offset": 1},
+                      "x": {"scale": "x", "field": "bin_end"},
+                      "y": {"scale": "y", "field": "count_end"},
+                      "y2": {"scale": "y", "field": "count_start"}
+                    }
+                  }
+                }
+              ],
+              "axes": [
+                {
+                  "scale": "y",
+                  "orient": "left",
+                  "gridScale": "x",
+                  "grid": true,
+                  "tickCount": {"signal": "ceil(hist_height/40)"},
+                  "domain": false,
+                  "labels": false,
+                  "aria": false,
+                  "maxExtent": 0,
+                  "minExtent": 0,
+                  "ticks": false,
+                  "zindex": 0
+                },
+                {
+                  "scale": "x",
+                  "orient": "bottom",
+                  "grid": false,
+                  "title": "bin_start, bin_end",
+                  "labelFlush": true,
+                  "labelOverlap": true,
+                  "tickCount": {"signal": "ceil(hist_width/40)"},
+                  "zindex": 0
+                },
+                {
+                  "scale": "y",
+                  "orient": "left",
+                  "grid": false,
+                  "title": "count",
+                  "labelOverlap": true,
+                  "tickCount": {"signal": "ceil(hist_height/40)"},
+                  "zindex": 0
+                }
+              ]
             }
           ],
-          "axes": [
+          "scales": [
             {
-              "scale": "y",
-              "orient": "left",
-              "gridScale": "x",
-              "grid": true,
-              "tickCount": {"signal": "ceil(hist_height/40)"},
-              "domain": false,
-              "labels": false,
-              "aria": false,
-              "maxExtent": 0,
-              "minExtent": 0,
-              "ticks": false,
-              "zindex": 0
+              "name": "x",
+              "type": "linear",
+              "domain": {
+                "data": "hist_data_0",
+                "fields": ["bin_start", "bin_end"]
+              },
+              "range": [0, {"signal": "hist_width"}],
+              "zero": false
             },
             {
-              "scale": "x",
-              "orient": "bottom",
-              "grid": false,
-              "title": "bin_start, bin_end",
-              "labelFlush": true,
-              "labelOverlap": true,
-              "tickCount": {"signal": "ceil(hist_width/40)"},
-              "zindex": 0
-            },
-            {
-              "scale": "y",
-              "orient": "left",
-              "grid": false,
-              "title": "count",
-              "labelOverlap": true,
-              "tickCount": {"signal": "ceil(hist_height/40)"},
-              "zindex": 0
+              "name": "y",
+              "type": "linear",
+              "domain": {
+                "data": "hist_data_0",
+                "fields": ["count_start", "count_end"]
+              },
+              "range": [{"signal": "hist_height"}, 0],
+              "nice": true,
+              "zero": true
             }
           ]
-        }
-      ],
-      "scales": [
-        {
-          "name": "x",
-          "type": "linear",
-          "domain": {"data": "hist_data_0", "fields": ["bin_start", "bin_end"]},
-          "range": [0, {"signal": "hist_width"}],
-          "zero": false
         },
         {
-          "name": "y",
-          "type": "linear",
-          "domain": {"data": "hist_data_0", "fields": ["count_start", "count_end"]},
-          "range": [{"signal": "hist_height"}, 0],
-          "nice": true,
-          "zero": true
+          "type": "group",
+          "name": "mse_group",
+          "style": "cell",
+          "signals": [
+            {"name": "x_step", "value": 20},
+            {
+              "name": "width",
+              "update": "bandspace(domain('mse_x').length, 0.1, 0.05) * x_step"
+            },
+            {"name": "mse_height", "value": 200}
+          ],
+          "marks": [
+            {
+              "type": "group",
+              "name": "child_mse",
+              "style": "cell",
+              "encode": {"update": {"height": {"signal": "mse_height"}}},
+              "signals": [
+                {"name": "x_step", "value": 20},
+                {
+                  "name": "width",
+                  "update": "bandspace(domain('mse_x').length, 0.1, 0.05) * x_step"
+                },
+                {"name": "height", "update": "mse_height"}
+              ],
+              "marks": [
+                {
+                  "name": "mse_marks",
+                  "type": "rect",
+                  "style": ["bar"],
+                  "from": {"data": "mse_data_0"},
+                  "encode": {
+                    "update": {
+                      "fill": {"scale": "mse_color", "field": "type_"},
+                      "ariaRoleDescription": {"value": "bar"},
+                      "x": {"scale": "mse_x", "field": "type_"},
+                      "width": {"signal": "max(0.25, bandwidth('mse_x'))"},
+                      "y": {"scale": "mse_y", "field": "mse_end"},
+                      "y2": {"scale": "mse_y", "field": "mse_start"}
+                    }
+                  }
+                }
+              ],
+              "axes": [
+                {
+                  "scale": "mse_y",
+                  "orient": "left",
+                  "gridScale": "mse_x",
+                  "grid": true,
+                  "tickCount": {"signal": "ceil(mse_height/40)"},
+                  "domain": false,
+                  "labels": false,
+                  "aria": false,
+                  "maxExtent": 0,
+                  "minExtent": 0,
+                  "ticks": false,
+                  "zindex": 0
+                },
+                {
+                  "scale": "mse_x",
+                  "orient": "bottom",
+                  "grid": false,
+                  "title": "type_",
+                  "labelAlign": "right",
+                  "labelAngle": 270,
+                  "labelBaseline": "middle",
+                  "zindex": 0
+                },
+                {
+                  "scale": "mse_y",
+                  "orient": "left",
+                  "grid": false,
+                  "title": "mse",
+                  "labelOverlap": true,
+                  "tickCount": {"signal": "ceil(mse_height/40)"},
+                  "zindex": 0
+                }
+              ]
+            }
+          ],
+          "scales": [
+            {
+              "name": "mse_x",
+              "type": "band",
+              "domain": {"data": "mse_data_0", "field": "type_"},
+              "range": {"step": {"signal": "x_step"}},
+              "paddingInner": 0.1,
+              "paddingOuter": 0.05
+            },
+            {
+              "name": "mse_y",
+              "type": "linear",
+              "domain": {
+                "data": "mse_data_0",
+                "fields": ["mse_start", "mse_end"]
+              },
+              "range": [{"signal": "mse_height"}, 0],
+              "nice": true,
+              "zero": true
+            },
+            {
+              "name": "mse_color",
+              "type": "ordinal",
+              "domain": {"data": "mse_data_0", "field": "type_"},
+              "range": "category"
+            }
+          ]
         }
       ]
     },

@@ -21,7 +21,7 @@ let build_vals xs =
   Form.Dynamic.with_default (Value.return xs) values
 ;;
 
-let num_elem = 22
+let num_elem = 1024
 let nd_to_1d arr = Array.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx))
 
 let form_of_v =
@@ -32,20 +32,26 @@ let form_of_v =
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
         | Uniform ->
-          let arr = Arr.sequential Bigarray.Float32 ~a:(-1.0) ~step:0.1 [| num_elem |] in
+          let arr = Arr.sequential Bigarray.Float32 ~a:(-10.0) ~step:0.1 [| num_elem |] in
           build_vals (Array.to_list (nd_to_1d arr))
         | Gaussian ->
-          let arr = Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:(-1.0) [| num_elem |] in
+          let arr = Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:(4.0) [| num_elem |] in
           build_vals (Array.to_list (nd_to_1d arr))
       ;;
     end)
 ;;
 
-let mse x x_recon =
+let sqnr x (name, x_recon) =
   let xs = List.zip_exn x x_recon in
-  let se = List.fold ~init:0. ~f:(fun acc (x, x_recon) -> (acc +. ((x -. x_recon) **. 2.))) xs in
-  (se /. (List.length xs |> Float.of_int))
-    
+  let sum_sq_errs =
+    List.fold ~init:0. ~f:(fun acc (x, x_recon) -> acc +. ((x -. x_recon) **. 2.)) xs
+  in
+  let mse = sum_sq_errs /. Float.of_int (List.length xs) in
+  let sum_sq_signal = List.fold ~init:0. ~f:(fun acc x -> acc +. (x **. 2.)) x in
+  let sqnr = 10. *. Float.(log10 (abs (sum_sq_signal /. mse))) in
+  name, sqnr
+;;
+
 let handle_list xs =
   if List.is_empty xs
   then Effect.Ignore
@@ -61,20 +67,18 @@ let handle_list xs =
     let e3 = E3M4.quantize ~fp32:xs in
     let i8, i8_recon = INT8.quantize ~fp32:xs |> Base.List.unzip in
     let vsq, vsq_recon = VSQ.quantize ~fp32:xs |> Base.List.unzip in
-    let fp_result =
-      [ "FP32", xs
-      ; "E5M2", e5
-      ; "E4M3", e4
-      ; "E3M4", e3
-      ]
-    in
-    let int_result = [ "INT8",  i8; "VSQ",  vsq] in
+    let fp_result = [ "FP32", xs; "E5M2", e5; "E4M3", e4; "E3M4", e3 ] in
+    let int_result = [ "INT8", i8; "VSQ", vsq ] in
     (* Hist *)
     let hist = Owl_base_stats.histogram (`N 16) (Array.of_list xs) in
-    (* MSE *)
-    let mses = List.map ~f:(mse xs) [e5; e4; e3; i8_recon; vsq_recon] in
-    Brr.Console.(log [ Jv.of_list Jv.of_float mses ]);
-    Effect.return (Vega.build_quantized_view hist fp_result int_result)
+    (* SQNR *)
+    let sqnrs =
+      List.map
+        ~f:(sqnr xs)
+        [ "E5M2", e5; "E4M3", e4; "E3M4", e3; "INT8", i8_recon; "VSQ", vsq_recon ]
+    in
+    (* Brr.Console.(log [ Jv.of_list Jv.of_float mses ]); *)
+    Effect.return (Vega.build_quantized_view hist fp_result int_result sqnrs)
 ;;
 
 let handle_update = function

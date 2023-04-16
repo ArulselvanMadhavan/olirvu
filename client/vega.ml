@@ -112,7 +112,7 @@ let build_coin_change xs =
   Brr.Console.(log [ str "Coin change updated" ])
 ;;
 
-let build_quantized_view hist fp_xs int_xs =
+let build_quantized_view hist fp_xs int_xs sqnrs =
   let open Jv in
   let update_data xs val_func =
     List.iter
@@ -136,5 +136,10 @@ let build_quantized_view hist fp_xs int_xs =
       |]
   in
   let values = Array.mapi gen_hist_datum hist.counts |> Array.to_list in
-  update_dataset ~name:"hist_source_0" values
+  update_dataset ~name:"hist_source_0" values;
+  let gen_sqnr_datum (name, sqnr) =
+    obj [| "type_", of_string name; "mse", of_float sqnr |]
+  in
+  let values = List.map gen_sqnr_datum sqnrs in
+  update_dataset ~name:"mse_source_0" values
 ;;
