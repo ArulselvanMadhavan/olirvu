@@ -10,6 +10,7 @@ end
 type t =
   | Uniform of Model.t
   | Gaussian of Model.t
+  | T of Model.t
 [@@deriving typed_variants, sexp, equal]
 
 let to_spec_name _ = "quant_diff_full"
@@ -34,6 +35,22 @@ let gaussian_dist num_elem =
   |> nd_to_1d num_elem
   |> Array.to_list
 ;;
+
+let t_dist num_elem =
+  let arr = Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:1. [| num_elem |] in
+  let arr = nd_to_1d num_elem arr in
+  let df = 5 in
+  let i = ref 0 in
+  let n_sqrt = Float.sqrt (Float.of_int df) in
+  let result = Array.init num_elem ~f:(fun _ -> 0.) in
+  (while (!i < num_elem) do
+     let sample = Owl_base_stats.sample arr df in
+     let mean = Owl_base_stats.mean sample in
+     let std = Owl_base_stats.std ~mean sample in
+     result.(!i) <- mean /. (std /. n_sqrt);
+     i := !i + 1;
+  done);
+  Array.to_list result
 
 let update_tile tile f =
   let open Bonsai.Let_syntax in
@@ -60,6 +77,7 @@ let form_of_v =
         = function
         | Uniform -> build_dist uniform_dist
         | Gaussian -> build_dist gaussian_dist
+        | T -> build_dist t_dist
       ;;
     end)
 ;;
@@ -108,4 +126,5 @@ let handle_list (tsize, xs) =
 let handle_update = function
   | Uniform x -> handle_list x
   | Gaussian x -> handle_list x
+  | T x -> handle_list x
 ;;
