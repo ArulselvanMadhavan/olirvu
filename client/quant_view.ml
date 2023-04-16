@@ -4,7 +4,7 @@ module Form = Bonsai_web_ui_form
 module Arr = Owl_base_dense_ndarray.Generic
 
 module Model = struct
-  type t = float list [@@deriving sexp, equal]
+  type t = int * float list [@@deriving sexp, equal]
 end
 
 type t =
@@ -14,15 +14,42 @@ type t =
 
 let to_spec_name _ = "quant_diff_full"
 
-let build_vals xs =
-  let open Bonsai.Let_syntax in
+let tile =
   let value = Form.Elements.Number.float [%here] ~default:0. ~step:0.1 () in
-  let%sub values = Form.Elements.Multiple.list [%here] value in
-  Form.Dynamic.with_default (Value.return xs) values
+  Form.Elements.Multiple.list [%here] value
 ;;
 
-let num_elem = 1024
-let nd_to_1d arr = Array.init num_elem ~f:(fun idx -> Arr.(( .%{} ) arr idx))
+let default_tile_size = 8
+let tile_size = Form.Elements.Number.int [%here] ~default:default_tile_size ~step:1 ()
+let nd_to_1d tsize arr = Array.init tsize ~f:(fun idx -> Arr.(( .%{} ) arr idx))
+
+let uniform_dist num_elem =
+  Arr.sequential Bigarray.Float32 ~a:(-10.0) ~step:0.1 [| num_elem |]
+  |> nd_to_1d num_elem
+  |> Array.to_list
+;;
+
+let gaussian_dist num_elem =
+  Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:1.0 [| num_elem |]
+  |> nd_to_1d num_elem
+  |> Array.to_list
+;;
+
+let update_tile tile f =
+  let open Bonsai.Let_syntax in
+  let%map tile = tile in
+  fun tile_size -> Form.set tile (f tile_size)
+;;
+
+let build_dist f =
+  let open Bonsai.Let_syntax in
+  let%sub tsize = tile_size in
+  let%sub tile = tile in
+  let%sub () = Form.Dynamic.on_change (module Int) ~f:(update_tile tile f) tsize in
+  let%arr tsize = tsize
+  and tile = tile in
+  Form.both tsize tile
+;;
 
 let form_of_v =
   Form.Typed.Variant.make
@@ -31,12 +58,8 @@ let form_of_v =
 
       let form_for_variant : type a. a Typed_variant.t -> a Form.t Computation.t
         = function
-        | Uniform ->
-          let arr = Arr.sequential Bigarray.Float32 ~a:(-10.0) ~step:0.1 [| num_elem |] in
-          build_vals (Array.to_list (nd_to_1d arr))
-        | Gaussian ->
-          let arr = Arr.gaussian Bigarray.Float32 ~mu:0. ~sigma:(4.0) [| num_elem |] in
-          build_vals (Array.to_list (nd_to_1d arr))
+        | Uniform -> build_dist uniform_dist
+        | Gaussian -> build_dist gaussian_dist
       ;;
     end)
 ;;
@@ -82,6 +105,6 @@ let handle_list xs =
 ;;
 
 let handle_update = function
-  | Uniform xs -> handle_list xs
-  | Gaussian xs -> handle_list xs
+  | Uniform (_, xs) -> handle_list xs
+  | Gaussian (_, xs) -> handle_list xs
 ;;

@@ -49,12 +49,11 @@ module FP32_to_INT_Q (I : INT_Q) : Quant with type t := I.t = struct
     let scale = Float.of_int max_bound /. max_val fp32 in
     let q_helper fp32 =
       let r = fp32 *. scale in
-      let r = Base.Float.round_nearest r |> Int.of_float in      
+      let r = Base.Float.round_nearest r |> Int.of_float in
       let r =
         if r < min_bound then min_bound else if r > max_bound then max_bound else r
       in
-      let r1, r2 = r, (Float.of_int r) /. scale in
-      Printf.printf "%d|%f\n" r1 r2;
+      let r1, r2 = r, Float.of_int r /. scale in
       r1, r2
     in
     List.map q_helper fp32
