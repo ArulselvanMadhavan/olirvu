@@ -11,6 +11,7 @@ type t =
   | Uniform of Model.t
   | Gaussian of Model.t
   | T of Model.t
+  | E4M3 of Model.t
 [@@deriving typed_variants, sexp, equal]
 
 let to_spec_name _ = "quant_diff_full"
@@ -43,14 +44,80 @@ let t_dist num_elem =
   let i = ref 0 in
   let n_sqrt = Float.sqrt (Float.of_int df) in
   let result = Array.init num_elem ~f:(fun _ -> 0.) in
-  (while (!i < num_elem) do
-     let sample = Owl_base_stats.sample arr df in
-     let mean = Owl_base_stats.mean sample in
-     let std = Owl_base_stats.std ~mean sample in
-     result.(!i) <- mean /. (std /. n_sqrt);
-     i := !i + 1;
-  done);
+  while !i < num_elem do
+    let sample = Owl_base_stats.sample arr df in
+    let mean = Owl_base_stats.mean sample in
+    let std = Owl_base_stats.std ~mean sample in
+    result.(!i) <- mean /. (std /. n_sqrt);
+    i := !i + 1
+  done;
   Array.to_list result
+;;
+
+let e4m3_dist num_elem =
+  let module Int32 = Base.Int32 in
+  let open Olirvu in
+  let module E4M3 = Quantization.FP32_to_FP_Q (Quant_intf.E4M3) in
+  let n = 8 in
+  let total = 2 ** n in
+  let arr = Array.init total ~f:(fun _ -> 0.) in
+  let idx = ref 0 in
+  let eval_mant (m_val : Int32.t) m_bits =
+    let i = ref 0 in
+    let res = ref 0. in
+    let m_val = ref m_val in
+    while !i < m_bits do
+      let d_m = Int32.(!m_val land one) in
+      if Int32.(d_m > zero) then res := !res +. (1. /. Float.of_int (2 ** (m_bits - !i)));
+      (m_val := Int32.(!m_val lsr 1));
+      i := !i + 1
+    done;
+    !res
+  in
+  let to_fp32 bits =
+    let n_mant = Quant_intf.E4M3.mantissa in
+    let x_mant = 32 - n_mant in
+    let n_minus_1 = n - 1 in
+    let n_exp = Quant_intf.E4M3.n_bits - n_mant - 1 in
+    let bias = Int32.of_int_exn (2 ** (n_exp - 1)) in
+    let open Int32 in
+    let is_sign = bits land (one lsl n_minus_1) in
+    let m = (bits lsl x_mant) lsr x_mant in
+    let p = ((bits lsl 25) lsr 25) lsr n_mant in
+    let normal_eval () =
+      let exp_mul = 2. **. Int32.to_float (p - bias) in
+      let man_mul = 1. +. eval_mant m n_mant in
+      let result = exp_mul *. man_mul in
+      if is_sign > zero then -1. *. result else result
+    in
+    let subnorm_eval () =
+      let exp_mul = 2. **. Int32.to_float (one - bias) in
+      let man_mul = eval_mant m n_mant in
+      let result = exp_mul *. man_mul in
+      if is_sign > zero
+      then -1. *. result        (* negative zero is not a valid value. but js doesn't handle infinity or nan *)
+      else result
+    in
+    if p = zero then subnorm_eval () else normal_eval ()
+  in
+  let rec gen_bits bits i =
+    if i = n
+    then (
+      arr.(!idx) <- to_fp32 bits;
+      idx := !idx + 1)
+    else (
+      let next_bit = i + 1 in
+      gen_bits bits next_bit;
+      let pos = n - next_bit in
+      let one_bit = Int32.(one lsl pos) in
+      let bits = Int32.(bits lor one_bit) in
+      gen_bits bits next_bit)
+  in
+  gen_bits Int32.zero 0;
+  let n = Int.min total num_elem in
+  let res = Base.Array.sub arr ~pos:0 ~len:n in
+  Array.to_list res
+;;
 
 let update_tile tile f =
   let open Bonsai.Let_syntax in
@@ -78,6 +145,7 @@ let form_of_v =
         | Uniform -> build_dist uniform_dist
         | Gaussian -> build_dist gaussian_dist
         | T -> build_dist t_dist
+        | E4M3 -> build_dist e4m3_dist
       ;;
     end)
 ;;
@@ -127,4 +195,5 @@ let handle_update = function
   | Uniform x -> handle_list x
   | Gaussian x -> handle_list x
   | T x -> handle_list x
+  | E4M3 x -> handle_list x
 ;;
